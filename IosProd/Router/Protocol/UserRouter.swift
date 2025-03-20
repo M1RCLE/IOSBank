@@ -1,4 +1,4 @@
 protocol UserRouterProtocol {
-    func navigateToMoneyTransfer()
-    func navigateToTransactionHistory()
+    func navigateToMoneyTransfer() -> UserRouterProtocol
+    func navigateToTransactionHistory() -> UserRouterProtocol
 }

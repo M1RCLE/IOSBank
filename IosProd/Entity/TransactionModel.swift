@@ -1,3 +1,5 @@
+import Foundation
+
 struct Transaction {
     private let id: String
     private let fromAccount: String

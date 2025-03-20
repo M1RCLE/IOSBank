@@ -1,4 +1,4 @@
 protocol AuthRouterProtocol {
-    func navigateToServices()
-    func navigateToPasswordRecovery()
+    func navigateToServices() -> AuthViewProtocol
+    func navigateToPasswordRecovery() -> AuthViewProtocol
 }
