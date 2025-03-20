@@ -1,4 +1,4 @@
-struct UserDto: AnyObject {
+struct UserDto {
     private let username: String
     private let email: String
     private let accounts: [BankAccountDto]
