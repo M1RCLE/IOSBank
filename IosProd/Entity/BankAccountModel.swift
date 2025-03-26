@@ -1,13 +1,13 @@
 import Foundation
 
-enum AccountType {
+enum AccountType: String, Codable {
     case credit
     case debit
 }
 
 struct BankAccount {
-    private let id: String
-    private let accountType: AccountType
-    private let creationDate: Date
-    private let balance: Double
+    let id: String
+    let accountType: AccountType
+    let creationDate: Date
+    let balance: Double
 }
