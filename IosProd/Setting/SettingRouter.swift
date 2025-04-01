@@ -1,6 +1,4 @@
-protocol SettingsRouterProtocol: AnyRouter {
-    static func createModule() -> UIViewController
-    
+protocol SettingsRouterProtocol: AnyObject {
     func dismissSettings()
     func showErrorAlert(message: String)
 }

@@ -2,10 +2,10 @@ import Foundation
 
 struct SettingsDTO: Codable {
     struct AppSettings: Codable {
-        var isDarkModeEnabled: Bool
-        var isNotificationsEnabled: Bool
-        var language: String
-        var currencyCode: String
+        let isDarkModeEnabled: Bool
+        let isNotificationsEnabled: Bool
+        let language: String
+        let currencyCode: String
         
         init(
             isDarkModeEnabled: Bool = false,
@@ -51,7 +51,6 @@ struct SettingsDTO: Codable {
     }
 }
 
-// Conversion extension
 extension SettingsDTO {
     func toModel() -> SettingsModel {
         return SettingsModel(
