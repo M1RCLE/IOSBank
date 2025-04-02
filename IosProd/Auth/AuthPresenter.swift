@@ -8,8 +8,8 @@ class AuthPresenter: AuthPresentable {
         interactor?.validateCredentials(username: username, password: password)
     }
     
-    func forgotPasswordTapped(email: String) {
-        interactor?.recoverPassword(for: email)
+    func forgotPasswordTapped() {
+        router?.navigateToPasswordRecovery()
     }
     
     func handleError(_ error: AuthError) {
@@ -20,9 +20,5 @@ class AuthPresenter: AuthPresentable {
     func authSuccess() {
         view?.showLoadingState(false)
         router?.navigateToServices()
-    }
-    
-    func passwordRecoveryInitiated() {
-        view?.showPasswordRecoveryScreen()
     }
 }

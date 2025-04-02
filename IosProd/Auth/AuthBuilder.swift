@@ -1,5 +1,5 @@
-class AuthModuleConfigurator {
-    static func configure() -> AuthViewController {
+class AuthModuleBuilder {
+    static func build() -> AuthViewController {
         let view = AuthViewController()
         let presenter = AuthPresenter()
         let interactor = AuthInteractor()

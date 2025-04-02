@@ -9,7 +9,7 @@ class AuthRouter: AuthRoutable {
     }
     
     func navigateToPasswordRecovery() {
-        let passwordRecoveryVC = PasswordRecoveryViewController()
+        let passwordRecoveryVC = PasswordRecoveryBuilder.build()
         viewController?.navigationController?.pushViewController(passwordRecoveryVC, animated: true)
     }
 }

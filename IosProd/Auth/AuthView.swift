@@ -66,12 +66,7 @@ class AuthViewController: UIViewController, AuthViewable {
     }
     
     @objc private func forgotPasswordTapped() {
-        guard let email = usernameTextField.text else {
-            displayErrorMessage("Please enter your email")
-            return
-        }
-        
-        presenter?.forgotPasswordTapped(email: email)
+        presenter?.forgotPasswordTapped()
     }
     
     private func setupUI() {
@@ -148,11 +143,6 @@ class AuthViewController: UIViewController, AuthViewable {
                 self?.errorLabel.alpha = 0
             }
         }
-    }
-    
-    func showPasswordRecoveryScreen() {
-        let passwordRecoveryVC = PasswordRecoveryViewController()
-        navigationController?.pushViewController(passwordRecoveryVC, animated: true)
     }
     
     func showLoadingState(_ isLoading: Bool) {

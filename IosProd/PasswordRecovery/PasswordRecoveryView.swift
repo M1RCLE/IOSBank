@@ -78,7 +78,7 @@ class PasswordRecoveryViewController: UIViewController, PasswordRecoveryViewable
             errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -200)
         ])
     }
     

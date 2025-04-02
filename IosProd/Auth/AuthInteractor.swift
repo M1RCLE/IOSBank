@@ -28,14 +28,4 @@ class AuthInteractor: AuthInteractable {
             presenter?.handleError(.invalidCredentials)
         }
     }
-    
-    func recoverPassword(for email: String?) {
-        guard isValidEmail(email) else {
-            presenter?.handleError(.invalidEmail)
-            return
-        }
-        
-        print("Password recovery initiated for: \(email ?? "")")
-        presenter?.passwordRecoveryInitiated()
-    }
 }
