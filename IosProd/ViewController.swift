@@ -1,19 +1,23 @@
-//
-//  ViewController.swift
-//  IosProd
-//
-//  Created by Michael Shindarev on 12.03.2025.
-//
-
 import UIKit
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .white
+        title = "Bank Services"
+        
+        let label = UILabel()
+        label.text = "Welcome to Banking Services!"
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
-
 
 }
 
