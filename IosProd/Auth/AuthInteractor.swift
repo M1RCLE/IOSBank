@@ -1,5 +1,5 @@
-class AuthInteractor: AuthInteractorProtocol {
-    weak var presenter: AuthPresenterProtocol?
+class AuthInteractor: AuthInteractable {
+    weak var presenter: AuthPresentable?
     
     private func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }

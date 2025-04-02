@@ -1,9 +1,9 @@
 import UIKit
 
-class AuthViewController: UIViewController, AuthViewProtocol {
+class AuthViewController: UIViewController, AuthViewable {
     private lazy var usernameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Username"
+        textField.placeholder = "Email"
         textField.borderStyle = .roundedRect
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .none
@@ -55,12 +55,23 @@ class AuthViewController: UIViewController, AuthViewProtocol {
         return indicator
     }()
     
-    var presenter: AuthPresenterProtocol?
+    var presenter: AuthPresentable?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupActions()
+        setupKeyboardObservers()
+        setupTextFields()
+    }
+    
+    @objc private func forgotPasswordTapped() {
+        guard let email = usernameTextField.text else {
+            displayErrorMessage("Please enter your email")
+            return
+        }
+        
+        presenter?.forgotPasswordTapped(email: email)
     }
     
     private func setupUI() {
@@ -120,15 +131,6 @@ class AuthViewController: UIViewController, AuthViewProtocol {
         presenter?.loginButtonTapped(username: username, password: password)
     }
     
-    @objc private func forgotPasswordTapped() {
-        guard let email = usernameTextField.text else {
-            displayErrorMessage("Please enter your email")
-            return
-        }
-        
-        presenter?.forgotPasswordTaped(email: email)
-    }
-    
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -166,11 +168,66 @@ class AuthViewController: UIViewController, AuthViewProtocol {
     }
 }
 
-class PasswordRecoveryViewController: UIViewController {
+extension AuthViewController {
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        
+        let loginButtonFrame = loginButton.convert(loginButton.bounds, to: view)
+        if loginButtonFrame.maxY > keyboardFrame.minY {
+            view.frame.origin.y = -keyboardFrame.height / 2
+        }
+    }
+    
+    @objc private func keyboardWillHide() {
+        view.frame.origin.y = 0
+    }
+    
+    private func setupTextFields() {
+        usernameTextField.addTarget(self, action: #selector(validateEmail), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(validatePassword), for: .editingChanged)
+        
+        usernameTextField.layer.cornerRadius = 8
+        passwordTextField.layer.cornerRadius = 8
+        usernameTextField.layer.borderWidth = 1
+        passwordTextField.layer.borderWidth = 1
+    }
+    
+    @objc private func validateEmail() {
+        let isValid = (usernameTextField.text?.contains("@") ?? false)
+                    && (usernameTextField.text?.contains(".") ?? false)
+        usernameTextField.layer.borderColor = isValid
+            ? UIColor.systemGray4.cgColor
+            : UIColor.red.cgColor
+    }
+    
+    @objc private func validatePassword() {
+        let isValid = (passwordTextField.text?.count ?? 0) >= 6
+        passwordTextField.layer.borderColor = isValid
+            ? UIColor.systemGray4.cgColor
+            : UIColor.red.cgColor
+    }
+}
+
+class ServicesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        title = "Password Recovery"
-        // Implement password recovery UI and logic
+        title = "Services"
     }
 }

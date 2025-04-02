@@ -1,4 +1,4 @@
-protocol AuthInteractorProtocol: AnyObject {
+protocol AuthInteractable: AnyObject {
     func validateCredentials(username: String?, password: String?)
     func recoverPassword(for email: String?)
 }
