@@ -1,5 +1,10 @@
 class AuthInteractor: AuthInteractable {
     weak var presenter: AuthPresentable?
+    private let networkService: BankNetworkServiceProtocol
+    
+    init(networkService: BankNetworkServiceProtocol = BankNetworkService()) {
+        self.networkService = networkService
+    }
     
     private func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }
@@ -22,10 +27,17 @@ class AuthInteractor: AuthInteractable {
             return
         }
         
-        if username == "test@example.com" && password == "123456" {
-            presenter?.authSuccess()
-        } else {
-            presenter?.handleError(.invalidCredentials)
+        networkService.authenticate(email: username!, password: password!) { [weak self] result in
+            switch result {
+            case .success(let userDTO):
+                let user = userDTO.toModel()
+                let cacheService = UserCacheService()
+                cacheService.saveUser(user)
+                
+                self?.presenter?.authSuccess()
+            case .failure:
+                self?.presenter?.handleError(.invalidCredentials)
+            }
         }
     }
 }

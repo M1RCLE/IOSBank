@@ -213,11 +213,3 @@ extension AuthViewController {
             : UIColor.red.cgColor
     }
 }
-
-class ServicesViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Services"
-    }
-}

@@ -4,7 +4,7 @@ class AuthRouter: AuthRoutable {
     weak var viewController: UIViewController?
     
     func navigateToServices() {
-        let servicesVC = ServicesViewController()
+        let servicesVC = ServicesBuilder.build()
         viewController?.navigationController?.pushViewController(servicesVC, animated: true)
     }
     
