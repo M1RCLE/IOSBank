@@ -2,7 +2,7 @@ import UIKit
 
 class AuthInteractor: AuthInteractable {
     weak var presenter: AuthPresentable?
-    var networkService: NetworkService?
+    var networkService: NetworkService? = NetworkService.shared
     
     private func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }
@@ -25,19 +25,28 @@ class AuthInteractor: AuthInteractable {
             return
         }
         
-        networkService?.authenticate(username: username!, password: password!) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let isAuthenticated):
-                    if isAuthenticated {
-                        self?.presenter?.authSuccess()
-                    } else {
-                        self?.presenter?.handleError(.invalidCredentials)
+        print("About to authenticate with network service...")
+            if let service = networkService {
+                service.authenticate(username: username!, password: password!) { [weak self] result in
+                    print("Authentication result received: \(result)")
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let isAuthenticated):
+                            if isAuthenticated {
+                                print("Authentication successful, calling authSuccess")
+                                self?.presenter?.authSuccess()
+                            } else {
+                                print("Authentication failed with invalid credentials")
+                                self?.presenter?.handleError(.invalidCredentials)
+                            }
+                        case .failure(let error):
+                            print("Authentication failed with error: \(error)")
+                            self?.presenter?.handleError(.invalidCredentials)
+                        }
                     }
-                case .failure(_):
-                    self?.presenter?.handleError(.invalidCredentials)
                 }
+            } else {
+                print("Network service is nil!")
             }
-        }
     }
 }

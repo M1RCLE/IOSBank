@@ -10,6 +10,7 @@ class AuthModuleBuilder {
         presenter.interactor = interactor
         presenter.router = router
         interactor.presenter = presenter
+        interactor.networkService = NetworkService.shared
         router.viewController = view
         
         return view
