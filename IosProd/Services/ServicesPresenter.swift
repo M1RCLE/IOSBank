@@ -11,14 +11,6 @@ class ServicesPresenter: ServicesPresentable {
         loadProducts()
     }
     
-    func didFetchProducts(_ products: [Product]) {
-        view?.displayProducts(products)
-    }
-        
-    func didFailFetchingProducts(with error: String) {
-        view?.displayError(message: error)
-    }
-    
     func didSelectProduct(at index: Int) {
         guard index < products.count else { return }
         router?.navigateToProductDetails(product: products[index])

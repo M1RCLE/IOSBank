@@ -5,6 +5,16 @@ class NetworkService {
     
     private init() {}
     
+    func authenticate(username: String, password: String, completion: @escaping (Result<Bool, Error>) -> Void) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            if username == "test@example.com" && password == "123456" {
+                completion(.success(true))
+            } else {
+                completion(.success(false))
+            }
+        }
+    }
+    
     func request<T: Decodable>(endpoint: String, method: String = "GET", completion: @escaping (Result<T, NetworkError>) -> Void) {
         guard let url = URL(string: endpoint) else {
             completion(.failure(.invalidURL))

@@ -1,10 +1,8 @@
+import UIKit
+
 class AuthInteractor: AuthInteractable {
     weak var presenter: AuthPresentable?
-    private let networkService: BankNetworkServiceProtocol
-    
-    init(networkService: BankNetworkServiceProtocol = BankNetworkService()) {
-        self.networkService = networkService
-    }
+    var networkService: NetworkService?
     
     private func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }
@@ -27,16 +25,18 @@ class AuthInteractor: AuthInteractable {
             return
         }
         
-        networkService.authenticate(email: username!, password: password!) { [weak self] result in
-            switch result {
-            case .success(let userDTO):
-                let user = userDTO.toModel()
-                let cacheService = UserCacheService()
-                cacheService.saveUser(user)
-                
-                self?.presenter?.authSuccess()
-            case .failure:
-                self?.presenter?.handleError(.invalidCredentials)
+        networkService?.authenticate(username: username!, password: password!) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let isAuthenticated):
+                    if isAuthenticated {
+                        self?.presenter?.authSuccess()
+                    } else {
+                        self?.presenter?.handleError(.invalidCredentials)
+                    }
+                case .failure(_):
+                    self?.presenter?.handleError(.invalidCredentials)
+                }
             }
         }
     }
