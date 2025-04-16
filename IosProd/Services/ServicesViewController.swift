@@ -180,10 +180,8 @@ class ProductCell: UITableViewCell {
     }
     
     func configure(with viewModel: ProductViewModel) {
-        titleLabel.text = viewModel.name
+        titleLabel.text = viewModel.title
         categoryLabel.text = viewModel.category
         descriptionLabel.text = viewModel.shortDescription
-        detailsLabel.text = viewModel.details
-        promotedBadge.isHidden = !viewModel.isPromoted
     }
 }

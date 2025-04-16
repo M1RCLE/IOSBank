@@ -5,7 +5,7 @@ class ServicesRouter: ServicesRoutable {
     
     func navigateToProductDetails(product: Product) {
         let alert = UIAlertController(
-            title: product.name,
+            title: product.title,
             message: product.description,
             preferredStyle: .alert
         )

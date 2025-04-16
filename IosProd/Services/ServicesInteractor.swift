@@ -4,7 +4,7 @@ class ServicesInteractor: ServicesInteractable {
     weak var presenter: ServicesPresentable?
     private let service = NetworkService.shared
     
-    private let productsEndpoint = "https://my-json-server.typicode.com/typicode/demo/posts"
+    private let productsEndpoint = "https://dummyjson.com/products"
     
     func fetchProducts() {
         NetworkService.shared.request(endpoint: productsEndpoint) { [weak self] (result: Result<[Product], NetworkError>) in

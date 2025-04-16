@@ -82,6 +82,36 @@
             endingLineNumber = "9"
             landmarkName = "authenticate(username:password:completion:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "FF4EB83C-851D-4DFD-B7AC-30D4D4763DC3 - 99940f6278781a9e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "IosProd.NetworkService.authenticate(username: Swift.String, password: Swift.String, completion: (Swift.Result&lt;Swift.Bool, Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "IosProd.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/NetworkService/NetworkService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "9"
+                  endingLineNumber = "9">
+               </Location>
+               <Location
+                  uuid = "FF4EB83C-851D-4DFD-B7AC-30D4D4763DC3 - 5f4daabd2b3cb0ca"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Sendable () -&gt; () in IosProd.NetworkService.authenticate(username: Swift.String, password: Swift.String, completion: (Swift.Result&lt;Swift.Bool, Swift.Error&gt;) -&gt; ()) -&gt; ()"
+                  moduleName = "IosProd.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/NetworkService/NetworkService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "9"
+                  endingLineNumber = "9">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
