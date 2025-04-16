@@ -1,5 +1,5 @@
-class AuthInteractor: AuthInteractorProtocol {
-    weak var presenter: AuthPresenterProtocol?
+class AuthInteractor: AuthInteractable {
+    weak var presenter: AuthPresentable?
     
     private func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }
@@ -27,15 +27,5 @@ class AuthInteractor: AuthInteractorProtocol {
         } else {
             presenter?.handleError(.invalidCredentials)
         }
-    }
-    
-    func recoverPassword(for email: String?) {
-        guard isValidEmail(email) else {
-            presenter?.handleError(.invalidEmail)
-            return
-        }
-        
-        print("Password recovery initiated for: \(email ?? "")")
-        presenter?.passwordRecoveryInitiated()
     }
 }
