@@ -7,12 +7,10 @@ class ServicesInteractor: ServicesInteractable {
     private let productsEndpoint = "https://dummyjson.com/products"
     
     func fetchProducts() {
-        NetworkService.shared.request(endpoint: productsEndpoint) { [weak self] (result: Result<[Product], NetworkError>) in
-            guard let self = self else { return }
-            
+        NetworkService.shared.request(endpoint: productsEndpoint) { (result: Result<ProductsResponse, NetworkError>) in
             switch result {
             case .success(let products):
-                self.presenter?.didFetchProducts(products)
+                self.presenter?.didFetchProducts(products.products)
             case .failure(let error):
                 self.presenter?.didFailFetchingProducts(with: error.localizedDescription)
             }

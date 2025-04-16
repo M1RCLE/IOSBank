@@ -1,7 +1,7 @@
 import Foundation
 
 struct ProductDTO: Codable {
-    let id: String
+    let id: Int
     let title: String
     let description: String
     let category: String

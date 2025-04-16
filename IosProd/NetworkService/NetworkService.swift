@@ -40,6 +40,7 @@ class NetworkService {
                 return
             }
             
+            print(data);
             do {
                 let decodedObject = try JSONDecoder().decode(T.self, from: data)
                 completion(.success(decodedObject))

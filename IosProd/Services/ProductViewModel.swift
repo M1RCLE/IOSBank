@@ -1,7 +1,7 @@
 import Foundation
 
 struct ProductViewModel {
-    let id: String
+    let id: Int
     let title: String
     let shortDescription: String
     let category: String
