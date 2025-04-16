@@ -24,6 +24,17 @@ class ServicesViewController: UIViewController, ServicesViewable {
         return refreshControl
     }()
     
+    let settingsButton = UIBarButtonItem(
+        image: UIImage(systemName: "gear"),
+        style: .plain,
+        target: self,
+        action: #selector(settingsButtonTapped)
+    )
+    
+    @objc private func settingsButtonTapped() {
+        presenter?.showSettings()
+    }
+    
     var presenter: ServicesPresentable?
     private var products: [ProductViewModel] = []
     

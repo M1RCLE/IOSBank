@@ -22,4 +22,9 @@ class ServicesRouter: ServicesRoutable {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         viewController?.present(alert, animated: true)
     }
+    
+    func navigateToSettings() {
+        let settingsVC = SettingsBuilder.build()
+        viewController?.navigationController?.pushViewController(settingsVC, animated: true)
+    }
 }

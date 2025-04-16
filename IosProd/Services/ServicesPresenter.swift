@@ -20,6 +20,10 @@ class ServicesPresenter: ServicesPresentable {
         loadProducts()
     }
     
+    func showSettings() {
+        router?.navigateToSettings()
+    }
+    
     private func loadProducts() {
         view?.showLoading(true)
         interactor?.fetchProducts()
