@@ -4,12 +4,12 @@ class AuthInteractor: AuthInteractable {
     weak var presenter: AuthPresentable?
     var networkService: NetworkService? = NetworkService.shared
     
-    private func isValidEmail(_ email: String?) -> Bool {
+    func isValidEmail(_ email: String?) -> Bool {
         guard let email = email else { return false }
-        return email.contains("@") && email.contains(".")
+        return email.contains("@") && email.contains(".") && email.count > 5
     }
-    
-    private func isValidPassword(_ password: String?) -> Bool {
+        
+    func isValidPassword(_ password: String?) -> Bool {
         guard let password = password else { return false }
         return password.count >= 6
     }

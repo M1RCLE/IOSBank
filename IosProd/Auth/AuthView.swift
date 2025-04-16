@@ -1,6 +1,19 @@
 import UIKit
 
 class AuthViewController: UIViewController, AuthViewable {
+    // MARK: - UI Components
+    private let scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private lazy var usernameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Email"
@@ -55,8 +68,10 @@ class AuthViewController: UIViewController, AuthViewable {
         return indicator
     }()
     
+    // MARK: - Properties
     var presenter: AuthPresentable?
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -65,44 +80,66 @@ class AuthViewController: UIViewController, AuthViewable {
         setupTextFields()
     }
     
+    // MARK: - Actions
     @objc private func forgotPasswordTapped() {
         presenter?.forgotPasswordTapped()
     }
     
+    // MARK: - Setup Methods
     private func setupUI() {
         view.backgroundColor = .white
         title = "Bank Login"
         
-        view.addSubview(usernameTextField)
-        view.addSubview(passwordTextField)
-        view.addSubview(loginButton)
-        view.addSubview(forgotPasswordButton)
-        view.addSubview(errorLabel)
+        // Hierarchy
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(usernameTextField)
+        contentView.addSubview(passwordTextField)
+        contentView.addSubview(loginButton)
+        contentView.addSubview(forgotPasswordButton)
+        contentView.addSubview(errorLabel)
         view.addSubview(loadingIndicator)
         
+        // Scroll View Constraints
         NSLayoutConstraint.activate([
-            usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -100),
-            usernameTextField.widthAnchor.constraint(equalToConstant: 300),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        
+        // Form Constraints
+        NSLayoutConstraint.activate([
+            usernameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            usernameTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            usernameTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
             usernameTextField.heightAnchor.constraint(equalToConstant: 44),
             
-            passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             passwordTextField.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 20),
-            passwordTextField.widthAnchor.constraint(equalToConstant: 300),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 44),
+            passwordTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            passwordTextField.widthAnchor.constraint(equalTo: usernameTextField.widthAnchor),
+            passwordTextField.heightAnchor.constraint(equalTo: usernameTextField.heightAnchor),
             
-            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
-            loginButton.widthAnchor.constraint(equalToConstant: 300),
+            loginButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            loginButton.widthAnchor.constraint(equalTo: usernameTextField.widthAnchor),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
             
-            forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             forgotPasswordButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 15),
+            forgotPasswordButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            errorLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            errorLabel.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 20),
+            errorLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            errorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            errorLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -117,12 +154,48 @@ class AuthViewController: UIViewController, AuthViewable {
         view.addGestureRecognizer(tapGesture)
     }
     
+    // MARK: - Keyboard Handling
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let keyboardHeight = keyboardFrame.height
+        
+        scrollView.contentInset.bottom = keyboardHeight
+        scrollView.verticalScrollIndicatorInsets.bottom = keyboardHeight
+    }
+    
+    @objc private func keyboardWillHide() {
+        scrollView.contentInset = .zero
+        scrollView.verticalScrollIndicatorInsets = .zero
+    }
+    
+    func updateEmailFieldValidation(isValid: Bool) {
+        usernameTextField.layer.borderColor = isValid ? UIColor.systemGray4.cgColor : UIColor.red.cgColor
+    }
+        
+    func updatePasswordFieldValidation(isValid: Bool) {
+        passwordTextField.layer.borderColor = isValid ? UIColor.systemGray4.cgColor : UIColor.red.cgColor
+    }
+    
+    // MARK: - Remaining Methods (unchanged)
     @objc private func loginButtonTapped() {
         guard let username = usernameTextField.text,
-              let password = passwordTextField.text else {
-            return
-        }
-        
+              let password = passwordTextField.text else { return }
         presenter?.loginButtonTapped(username: username, password: password)
     }
     
@@ -147,50 +220,16 @@ class AuthViewController: UIViewController, AuthViewable {
     
     func showLoadingState(_ isLoading: Bool) {
         DispatchQueue.main.async { [weak self] in
-            if isLoading {
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-            } else {
-                self?.loadingIndicator.stopAnimating()
-                self?.view.isUserInteractionEnabled = true
-            }
+            isLoading ? self?.loadingIndicator.startAnimating() : self?.loadingIndicator.stopAnimating()
+            self?.view.isUserInteractionEnabled = !isLoading
         }
     }
 }
 
 extension AuthViewController {
-    private func setupKeyboardObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func keyboardWillShow(notification: NSNotification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        
-        let loginButtonFrame = loginButton.convert(loginButton.bounds, to: view)
-        if loginButtonFrame.maxY > keyboardFrame.minY {
-            view.frame.origin.y = -keyboardFrame.height / 2
-        }
-    }
-    
-    @objc private func keyboardWillHide() {
-        view.frame.origin.y = 0
-    }
-    
     private func setupTextFields() {
-        usernameTextField.addTarget(self, action: #selector(validateEmail), for: .editingChanged)
-        passwordTextField.addTarget(self, action: #selector(validatePassword), for: .editingChanged)
+        usernameTextField.addTarget(self, action: #selector(emailTextFieldChanged), for: .editingChanged)
+        passwordTextField.addTarget(self, action: #selector(passwordTextFieldChanged), for: .editingChanged)
         
         usernameTextField.layer.cornerRadius = 8
         passwordTextField.layer.cornerRadius = 8
@@ -198,18 +237,11 @@ extension AuthViewController {
         passwordTextField.layer.borderWidth = 1
     }
     
-    @objc private func validateEmail() {
-        let isValid = (usernameTextField.text?.contains("@") ?? false)
-                    && (usernameTextField.text?.contains(".") ?? false)
-        usernameTextField.layer.borderColor = isValid
-            ? UIColor.systemGray4.cgColor
-            : UIColor.red.cgColor
+    @objc private func emailTextFieldChanged() {
+        presenter?.validateEmail(usernameTextField.text)
     }
     
-    @objc private func validatePassword() {
-        let isValid = (passwordTextField.text?.count ?? 0) >= 6
-        passwordTextField.layer.borderColor = isValid
-            ? UIColor.systemGray4.cgColor
-            : UIColor.red.cgColor
+    @objc private func passwordTextFieldChanged() {
+        presenter?.validatePassword(passwordTextField.text)
     }
 }

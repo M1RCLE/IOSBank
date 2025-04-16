@@ -12,6 +12,16 @@ class AuthPresenter: AuthPresentable {
         router?.navigateToPasswordRecovery()
     }
     
+    func validateEmail(_ email: String?) {
+        let isValid = interactor?.isValidEmail(email) ?? false
+        view?.updateEmailFieldValidation(isValid: isValid)
+    }
+        
+    func validatePassword(_ password: String?) {
+        let isValid = interactor?.isValidPassword(password) ?? false
+        view?.updatePasswordFieldValidation(isValid: isValid)
+    }
+    
     func handleError(_ error: AuthError) {
         view?.showLoadingState(false)
         view?.displayErrorMessage(error.rawValue)
