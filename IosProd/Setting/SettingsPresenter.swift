@@ -1,49 +1,83 @@
 import Foundation
 
-class SettingsPresenter: SettingsPresenterProtocol {
-    weak var view: SettingsViewProtocol?
-    var interactor: SettingsInteractorInputProtocol?
-    var router: SettingsRouterProtocol?
+class SettingsPresenter: SettingsPresentable {
+    weak var view: SettingsViewable?
+    var interactor: SettingsInteractable?
+    var router: SettingsRoutable?
+    
+    private var currentSettings: SettingsModel?
+    
+    func navigateBack() {
+        router?.navigateBack()
+    }
     
     func viewDidLoad() {
+        view?.showLoading(true)
         interactor?.fetchSettings()
     }
     
-    func didChangeSetting(key: String, newValue: Any) {
-        interactor?.updateSetting(key: key, value: newValue)
+    func toggleDarkMode(isEnabled: Bool) {
+        interactor?.updateSetting(key: "isDarkModeEnabled", value: isEnabled)
     }
     
-    func didRequestResetToDefaults() {
-        interactor?.resetToDefaultSettings()
+    func toggleNotifications(isEnabled: Bool) {
+        interactor?.updateSetting(key: "isNotificationsEnabled", value: isEnabled)
     }
     
-    // Callbacks from interactor
+    func changeLanguage(to language: String) {
+        interactor?.updateSetting(key: "language", value: language)
+    }
+    
+    func changeCurrency(to currencyCode: String) {
+        interactor?.updateSetting(key: "currencyCode", value: currencyCode)
+    }
+    
+    func toggleEmailNotifications(isEnabled: Bool) {
+        interactor?.updateSetting(key: "receiveEmailNotifications", value: isEnabled)
+    }
+    
+    func togglePushNotifications(isEnabled: Bool) {
+        interactor?.updateSetting(key: "receivePushNotifications", value: isEnabled)
+    }
+    
+    func toggleBiometricLogin(isEnabled: Bool) {
+        interactor?.updateSetting(key: "biometricLoginEnabled", value: isEnabled)
+    }
+    
+    func resetToDefaults() {
+        router?.showConfirmationAlert(
+            title: "Reset Settings",
+            message: "Are you sure you want to reset all settings to default values?",
+            confirmAction: { [weak self] in
+                self?.interactor?.resetToDefaultSettings()
+            }
+        )
+    }
+    
     func didFetchSettings(_ settings: SettingsModel) {
+        self.currentSettings = settings
         DispatchQueue.main.async { [weak self] in
-            self?.view?.displaySettings(settings)
+            self?.view?.showLoading(false)
+            self?.view?.updateSettings(settings)
         }
     }
     
-    func didUpdateSetting(key: String, value: Any) {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.updateSettingValue(for: key, newValue: value)
+    func didUpdateSetting(key: String, value: Any, success: Bool) {
+        if success {
+            if let settings = currentSettings {
+                DispatchQueue.main.async { [weak self] in
+                    self?.view?.updateSettings(settings)
+                }
+            }
+        } else {
+            didFailOperation(with: "Failed to update setting: \(key)")
         }
     }
     
-    func didResetSettings(_ settings: SettingsModel) {
+    func didFailOperation(with error: String) {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.displaySettings(settings)
+            self?.view?.showLoading(false)
+            self?.view?.showError(error)
         }
-    }
-    
-    func didEncounterError(_ error: Error) {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.displayError(error)
-            self?.router?.showErrorAlert(message: error.localizedDescription)
-        }
-    }
-    
-    func didTapClose() {
-        router?.dismissSettings()
     }
 }

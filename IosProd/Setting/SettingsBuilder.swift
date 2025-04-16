@@ -1,5 +1,3 @@
-import UIKit
-
 class SettingsBuilder {
     static func build() -> SettingsViewController {
         let view = SettingsViewController()

@@ -1,5 +1,5 @@
-protocol SettingsViewProtocol: AnyObject {
-    func displaySettings(_ settings: SettingsModel)
-    func displayError(_ error: Error)
-    func updateSettingValue(for settingKey: String, newValue: Any)
+protocol SettingsViewable: AnyObject {
+    func showLoading(_ isLoading: Bool)
+    func updateSettings(_ settings: SettingsModel)
+    func showError(_ message: String)
 }

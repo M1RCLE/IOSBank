@@ -1,5 +1,15 @@
-protocol SettingsPresenterProtocol: AnyObject {
+protocol SettingsPresentable: AnyObject {
     func viewDidLoad()
-    func didChangeSetting(key: String, newValue: Any)
-    func didRequestResetToDefaults()
+    func navigateBack()
+    func toggleDarkMode(isEnabled: Bool)
+    func toggleNotifications(isEnabled: Bool)
+    func changeLanguage(to language: String)
+    func changeCurrency(to currencyCode: String)
+    func toggleEmailNotifications(isEnabled: Bool)
+    func togglePushNotifications(isEnabled: Bool)
+    func toggleBiometricLogin(isEnabled: Bool)
+    func resetToDefaults()
+    func didFetchSettings(_ settings: SettingsModel)
+    func didUpdateSetting(key: String, value: Any, success: Bool)
+    func didFailOperation(with error: String)
 }

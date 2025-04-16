@@ -27,7 +27,7 @@ class ServicesViewController: UIViewController, ServicesViewable {
     let settingsButton = UIBarButtonItem(
         image: UIImage(systemName: "gear"),
         style: .plain,
-        target: self,
+        target: ServicesViewController.self,
         action: #selector(settingsButtonTapped)
     )
     
