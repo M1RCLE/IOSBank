@@ -1,3 +1,4 @@
+// IosProd/Auth/AuthRouter.swift (Updated)
 import UIKit
 
 class AuthRouter: AuthRoutable {
@@ -6,11 +7,13 @@ class AuthRouter: AuthRoutable {
     func navigateToServices() {
         DispatchQueue.main.async { [weak self] in
             let servicesVC = ServicesBuilder.build()
-            if let navController = self?.viewController?.navigationController {
-                print("Navigation controller exists, pushing services VC")
-                navController.pushViewController(servicesVC, animated: true)
+            
+            if let navigationController = self?.viewController?.navigationController {
+                navigationController.setViewControllers([servicesVC], animated: true)
             } else {
-                print("Navigation controller is nil!")
+                let navigationController = UINavigationController(rootViewController: servicesVC)
+                navigationController.modalPresentationStyle = .fullScreen
+                self?.viewController?.present(navigationController, animated: true)
             }
         }
     }
