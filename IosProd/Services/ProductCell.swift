@@ -17,7 +17,7 @@ class ProductCell: UITableViewCell {
     }
     
     private func setupUI() {
-        // Card view setup
+        // MARK: - Card view setup
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 12
         cardView.layer.shadowColor = UIColor.black.cgColor
@@ -27,7 +27,7 @@ class ProductCell: UITableViewCell {
         cardView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(cardView)
         
-        // Labels setup
+        // MARK: - Labels setup
         titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
         categoryLabel.font = UIFont.systemFont(ofSize: 12)
         categoryLabel.textColor = .systemBlue
@@ -35,18 +35,17 @@ class ProductCell: UITableViewCell {
         descriptionLabel.textColor = .darkGray
         descriptionLabel.numberOfLines = 2
         
-        // Arrow setup
+        // MARK: - Arrow setup
         detailsArrow.image = UIImage(systemName: "chevron.right")
         detailsArrow.tintColor = .systemGray
         detailsArrow.contentMode = .scaleAspectFit
         
-        // Add subviews
         [titleLabel, categoryLabel, descriptionLabel, detailsArrow].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             cardView.addSubview($0)
         }
         
-        // Layout constraints
+        // MARK: - Layout constraints
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -71,8 +70,7 @@ class ProductCell: UITableViewCell {
             detailsArrow.widthAnchor.constraint(equalToConstant: 16),
             detailsArrow.heightAnchor.constraint(equalToConstant: 16)
         ])
-        
-        // Cell appearance
+
         selectionStyle = .none
         backgroundColor = .clear
     }
