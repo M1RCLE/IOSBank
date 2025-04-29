@@ -5,7 +5,7 @@ class ServicesPresenter: ServicesPresentable {
     var interactor: ServicesInteractable?
     var router: ServicesRoutable?
     
-    private var products: [Product] = []
+    private var products: [ProductDTO] = []
     
     func viewDidLoad() {
         loadProducts()
@@ -29,10 +29,10 @@ class ServicesPresenter: ServicesPresentable {
         interactor?.fetchProducts()
     }
     
-    func didFetchProducts(_ products: [Product]) {
+    func didFetchProducts(_ products: [ProductDTO]) {
         self.products = products
         
-        let viewModels = products.map { ProductViewModel(from: $0) }
+        let viewModels = products.map { EnhancedProductViewModel(from: $0) }
         
         DispatchQueue.main.async { [weak self] in
             self?.view?.showLoading(false)
@@ -44,6 +44,7 @@ class ServicesPresenter: ServicesPresentable {
         DispatchQueue.main.async { [weak self] in
             self?.view?.showLoading(false)
             self?.view?.showError(error)
+            self?.router?.showErrorAlert(message: error)
         }
     }
 }

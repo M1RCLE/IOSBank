@@ -1,5 +1,32 @@
 import UIKit
 
+struct SettingsSection {
+    let title: String
+    var rows: [SettingsRow]
+}
+
+protocol SettingsRow {}
+
+struct SwitchSettingsRow: SettingsRow {
+    let title: String
+    var isOn: Bool
+    let action: (Bool) -> Void
+}
+
+struct ValueSettingsRow: SettingsRow {
+    let title: String
+    var value: String
+    let options: [String]
+    let action: (String) -> Void
+}
+
+struct ButtonSettingsRow: SettingsRow {
+    let title: String
+    let buttonTitle: String
+    let buttonStyle: UIAlertAction.Style
+    let action: () -> Void
+}
+
 class SettingsViewController: UIViewController, SettingsViewable {
     var presenter: SettingsPresentable?
     
@@ -236,171 +263,5 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
             
             present(alert, animated: true)
         }
-    }
-}
-
-struct SettingsSection {
-    let title: String
-    var rows: [SettingsRow]
-}
-
-protocol SettingsRow {}
-
-struct SwitchSettingsRow: SettingsRow {
-    let title: String
-    var isOn: Bool
-    let action: (Bool) -> Void
-}
-
-struct ValueSettingsRow: SettingsRow {
-    let title: String
-    var value: String
-    let options: [String]
-    let action: (String) -> Void
-}
-
-struct ButtonSettingsRow: SettingsRow {
-    let title: String
-    let buttonTitle: String
-    let buttonStyle: UIAlertAction.Style
-    let action: () -> Void
-}
-
-class SwitchTableViewCell: UITableViewCell {
-    private let titleLabel = UILabel()
-    private let switchControl = UISwitch()
-    private var switchAction: ((Bool) -> Void)?
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        switchControl.translatesAutoresizingMaskIntoConstraints = false
-        
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(switchControl)
-        
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
-            switchControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            switchControl.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
-        
-        switchControl.addTarget(self, action: #selector(switchValueChanged), for: .valueChanged)
-    }
-    
-    func configure(title: String, isOn: Bool, action: @escaping (Bool) -> Void) {
-        titleLabel.text = title
-        switchControl.isOn = isOn
-        switchAction = action
-    }
-    
-    @objc private func switchValueChanged() {
-        switchAction?(switchControl.isOn)
-    }
-}
-
-class ValueTableViewCell: UITableViewCell {
-    private let titleLabel = UILabel()
-    private let valueLabel = UILabel()
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        valueLabel.textColor = .gray
-        
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(valueLabel)
-        
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
-            valueLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            valueLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
-        
-        accessoryType = .disclosureIndicator
-    }
-    
-    func configure(title: String, value: String) {
-        titleLabel.text = title
-        valueLabel.text = value
-    }
-}
-
-class ButtonTableViewCell: UITableViewCell {
-    private let titleLabel = UILabel()
-    private let actionButton = UIButton(type: .system)
-    private var buttonAction: (() -> Void)?
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        actionButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(actionButton)
-        
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
-            actionButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            actionButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            actionButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 80),
-            actionButton.heightAnchor.constraint(equalToConstant: 36)
-        ])
-        
-        actionButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-    }
-    
-    func configure(title: String, buttonTitle: String, style: UIAlertAction.Style, action: @escaping () -> Void) {
-        titleLabel.text = title
-        actionButton.setTitle(buttonTitle, for: .normal)
-        
-        switch style {
-        case .default:
-            actionButton.setTitleColor(.systemBlue, for: .normal)
-        case .destructive:
-            actionButton.setTitleColor(.systemRed, for: .normal)
-        case .cancel:
-            actionButton.setTitleColor(.systemGray, for: .normal)
-        @unknown default:
-            actionButton.setTitleColor(.systemBlue, for: .normal)
-        }
-        
-        buttonAction = action
-    }
-    
-    @objc private func buttonTapped() {
-        buttonAction?()
     }
 }

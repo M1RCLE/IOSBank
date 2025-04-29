@@ -17,6 +17,47 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
         return refreshControl
     }()
     
+    private lazy var noDataView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 16
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let imageView = UIImageView(image: UIImage(systemName: "doc.text.magnifyingglass"))
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .systemGray
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let label = UILabel()
+        label.text = "No products found"
+        label.textColor = .systemGray
+        label.font = UIFont.systemFont(ofSize: 16)
+        
+        let button = UIButton(type: .system)
+        button.setTitle("Refresh", for: .normal)
+        button.addTarget(self, action: #selector(refreshData), for: .touchUpInside)
+        
+        stackView.addArrangedSubview(imageView)
+        stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(button)
+        view.addSubview(stackView)
+        
+        NSLayoutConstraint.activate([
+            imageView.heightAnchor.constraint(equalToConstant: 100),
+            imageView.widthAnchor.constraint(equalToConstant: 100),
+            
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
+        return view
+    }()
+    
     var presenter: ServicesPresentable?
     
     override func viewDidLoad() {
@@ -41,6 +82,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
         
         view.addSubview(tableView)
         view.addSubview(loadingIndicator)
+        view.addSubview(noDataView)
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -49,11 +91,18 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            noDataView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            noDataView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            noDataView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            noDataView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
     private func setupNavigationBar() {
+        navigationItem.hidesBackButton = true // Hide back button since this is post-login
+        
         let settingsButton = UIBarButtonItem(
             image: UIImage(systemName: "gear"),
             style: .plain,
@@ -77,6 +126,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
         DispatchQueue.main.async { [weak self] in
             if isLoading {
                 self?.loadingIndicator.startAnimating()
+                self?.noDataView.isHidden = true
             } else {
                 self?.loadingIndicator.stopAnimating()
                 self?.refreshControl.endRefreshing()
@@ -84,18 +134,23 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
         }
     }
     
-    func showProducts(_ products: [ProductViewModel]) {
-        tableManager.updateData(with: products)
+    func showProducts(_ products: [EnhancedProductViewModel]) {
+        DispatchQueue.main.async { [weak self] in
+            self?.noDataView.isHidden = !products.isEmpty
+            self?.tableManager.updateData(with: products)
+        }
     }
     
     func showError(_ message: String) {
-        let alert = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        DispatchQueue.main.async { [weak self] in
+            let alert = UIAlertController(
+                title: "Error",
+                message: message,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(alert, animated: true)
+        }
     }
     
     // MARK: - TableManagerDelegate

@@ -9,8 +9,8 @@ class ServicesInteractor: ServicesInteractable {
     func fetchProducts() {
         NetworkService.shared.request(endpoint: productsEndpoint) { (result: Result<ProductsResponse, NetworkError>) in
             switch result {
-            case .success(let products):
-                self.presenter?.didFetchProducts(products.products)
+            case .success(let productsResponse):
+                self.presenter?.didFetchProducts(productsResponse.products)
             case .failure(let error):
                 self.presenter?.didFailFetchingProducts(with: error.localizedDescription)
             }

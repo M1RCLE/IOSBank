@@ -5,12 +5,14 @@ struct ProductDTO: Codable {
     let title: String
     let description: String
     let category: String
+    let thumbnail: String?
     
     enum CodingKeys: String, CodingKey {
         case id
         case title
         case description
         case category
+        case thumbnail
     }
     
     func toModel() -> Product {
@@ -18,7 +20,8 @@ struct ProductDTO: Codable {
             id: id,
             title: title,
             description: description,
-            category: category
+            category: category,
+            imageUrl: thumbnail
         )
     }
     
@@ -27,12 +30,13 @@ struct ProductDTO: Codable {
             id: model.id,
             title: model.title,
             description: model.description,
-            category: model.category
+            category: model.category,
+            thumbnail: model.imageUrl
         )
     }
 }
 
-struct ProductsResponseDTO: Codable {
+struct ProductsResponse: Codable {
     let products: [ProductDTO]
     
     func toModel() -> [Product] {

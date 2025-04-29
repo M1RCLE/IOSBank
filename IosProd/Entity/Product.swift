@@ -1,19 +1,17 @@
 import Foundation
 
-struct Product: Codable {
+struct Product : Codable {
     let id: Int
     let title: String
     let description: String
     let category: String
+    let imageUrl: String?
     
-    enum CodingKeys: String, CodingKey {
-        case id = "id"
-        case title = "title"
-        case description = "description"
-        case category = "category"
+    init(id: Int, title: String, description: String, category: String, imageUrl: String? = nil) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.category = category
+        self.imageUrl = imageUrl
     }
-}
-
-struct ProductsResponse: Codable {
-    let products: [Product]
 }

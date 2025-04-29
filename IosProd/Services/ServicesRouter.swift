@@ -3,7 +3,7 @@ import UIKit
 class ServicesRouter: ServicesRoutable {
     weak var viewController: UIViewController?
     
-    func navigateToProductDetails(product: Product) {
+    func navigateToProductDetails(product: ProductDTO) {
         let alert = UIAlertController(
             title: product.title,
             message: product.description,

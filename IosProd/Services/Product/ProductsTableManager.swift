@@ -2,18 +2,20 @@ import UIKit
 
 class ProductsTableManager: NSObject, TableManagerProtocol {
     weak var delegate: TableManagerDelegate?
-    private var products: [ProductViewModel] = []
+    private var products: [EnhancedProductViewModel] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.register(ProductCell.self, forCellReuseIdentifier: "ProductCell")
+        tableView.register(GenericCell<ProductView>.self, forCellReuseIdentifier: "ProductCell")
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .systemBackground
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
     
-    func updateData(with items: [ProductViewModel]) {
+    func updateData(with items: [EnhancedProductViewModel]) {
         self.products = items
         tableView.reloadData()
     }
@@ -29,12 +31,16 @@ class ProductsTableManager: NSObject, TableManagerProtocol {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as? ProductCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath) as? GenericCell<ProductView> else {
             return UITableViewCell()
         }
         
         cell.configure(with: products[indexPath.row])
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 100 // Adjusted for the new cell with image
     }
     
     // MARK: - UITableViewDelegate
