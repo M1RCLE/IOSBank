@@ -1,6 +1,6 @@
 import UIKit
 
-class ProductsTableManager: NSObject, TableManagerProtocol {
+class ProductsTableManager: NSObject, ProductTableManagable {
     weak var delegate: TableManagerDelegate?
     private var products: [EnhancedProductViewModel] = []
     
@@ -25,7 +25,6 @@ class ProductsTableManager: NSObject, TableManagerProtocol {
     }
     
     // MARK: - UITableViewDataSource
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return products.count
     }

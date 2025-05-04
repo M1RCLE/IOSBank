@@ -248,12 +248,17 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         
         let row = sections[indexPath.section].rows[indexPath.row]
         if let valueRow = row as? ValueSettingsRow {
-            // Show action sheet for selection
             let alert = UIAlertController(title: "Select \(valueRow.title)", message: nil, preferredStyle: .actionSheet)
             
             for option in valueRow.options {
-                let action = UIAlertAction(title: option, style: .default) { _ in
+                let action = UIAlertAction(title: option, style: .default) { [weak self] _ in
                     valueRow.action(option)
+                    
+                    var updatedRow = valueRow
+                    updatedRow.value = option
+
+                    self?.sections[indexPath.section].rows[indexPath.row] = updatedRow
+                    self?.tableView.reloadRows(at: [indexPath], with: .none)
                 }
                 alert.addAction(action)
             }

@@ -1,7 +1,7 @@
 import UIKit
 
 class ServicesViewController: UIViewController, ServicesViewable, TableManagerDelegate {
-    private var tableManager: TableManagerProtocol!
+    private var tableManager: ProductTableManagable!
     
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
