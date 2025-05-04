@@ -44,7 +44,7 @@ public final class Card: UIView {
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Spacing.medium)
         ])
         
-        layer.cornerRadius = CornerRadius.medium
+        layer.cornerRadius = CornerRadius.large
         
         switch viewModel.style {
         case .elevated:

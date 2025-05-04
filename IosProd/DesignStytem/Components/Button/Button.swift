@@ -11,47 +11,51 @@ public final class Button: UIButton {
     private func setupButton() {
         guard let viewModel = viewModel else { return }
         
-        setTitle(viewModel.title, for: .normal)
-        isEnabled = viewModel.isEnabled
-        addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        
-        if let icon = viewModel.icon {
-            setImage(icon, for: .normal)
-            imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: Spacing.small)
-            titleEdgeInsets = UIEdgeInsets(top: 0, left: Spacing.small, bottom: 0, right: 0)
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = viewModel.title
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = Typography.body
+            return outgoing
         }
         
-        layer.cornerRadius = CornerRadius.medium
-        titleLabel?.font = Typography.body
+        if let icon = viewModel.icon {
+            configuration.image = icon
+            configuration.imagePadding = Spacing.small
+            configuration.imagePlacement = .leading
+        }
+        
+        configuration.contentInsets = NSDirectionalEdgeInsets(
+            top: Spacing.small,
+            leading: Spacing.medium,
+            bottom: Spacing.small,
+            trailing: Spacing.medium
+        )
         
         switch viewModel.style {
         case .primary:
-            backgroundColor = viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5)
-            setTitleColor(Colors.onPrimary, for: .normal)
-            setTitleColor(Colors.onPrimary.withAlphaComponent(0.5), for: .disabled)
+            configuration.baseBackgroundColor = viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5)
+            configuration.baseForegroundColor = Colors.onPrimary
             
         case .secondary:
-            backgroundColor = viewModel.isEnabled ? Colors.secondary : Colors.secondary.withAlphaComponent(0.5)
-            setTitleColor(Colors.onSecondary, for: .normal)
-            setTitleColor(Colors.onSecondary.withAlphaComponent(0.5), for: .disabled)
+            configuration.baseBackgroundColor = viewModel.isEnabled ? Colors.secondary : Colors.secondary.withAlphaComponent(0.5)
+            configuration.baseForegroundColor = Colors.onSecondary
             
         case .outlined:
-            backgroundColor = .clear
-            layer.borderWidth = 1
-            layer.borderColor = viewModel.isEnabled ? Colors.primary.cgColor : Colors.primary.withAlphaComponent(0.5).cgColor
-            setTitleColor(viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5), for: .normal)
+            configuration.background.strokeColor = viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5)
+            configuration.background.strokeWidth = 1
+            configuration.baseForegroundColor = viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5)
             
         case .text:
-            backgroundColor = .clear
-            setTitleColor(viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5), for: .normal)
+            configuration.baseForegroundColor = viewModel.isEnabled ? Colors.primary : Colors.primary.withAlphaComponent(0.5)
         }
         
-        contentEdgeInsets = UIEdgeInsets(
-            top: Spacing.small,
-            left: Spacing.medium,
-            bottom: Spacing.small,
-            right: Spacing.medium
-        )
+        configuration.cornerStyle = .fixed
+        configuration.background.cornerRadius = CornerRadius.medium
+        self.configuration = configuration
+        
+        isEnabled = viewModel.isEnabled
+        addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
     
     @objc private func buttonTapped() {

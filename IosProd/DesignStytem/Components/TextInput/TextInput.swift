@@ -50,14 +50,14 @@ public final class TextInput: UITextField {
             layer.addSublayer(bottomLine)
             
         case .outlined:
-            layer.cornerRadius = CornerRadius.small
+            layer.cornerRadius = CornerRadius.medium
             layer.borderWidth = 1
             layer.borderColor = Colors.onBackground.withAlphaComponent(0.2).cgColor
             backgroundColor = .clear
             borderStyle = .none
             
         case .error:
-            layer.cornerRadius = CornerRadius.small
+            layer.cornerRadius = CornerRadius.medium
             layer.borderWidth = 1
             layer.borderColor = Colors.error.cgColor
             backgroundColor = .clear

@@ -14,58 +14,60 @@ class AuthViewController: UIViewController, AuthViewable {
         return view
     }()
     
-    private lazy var usernameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Email"
-        textField.borderStyle = .roundedRect
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
+    private lazy var titleLabel: Label = {
+        let label = Label()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var subtitleLabel: Label = {
+        let label = Label()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var usernameTextField: TextInput = {
+        let textField = TextInput()
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    private lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Password"
-        textField.borderStyle = .roundedRect
-        textField.isSecureTextEntry = true
+    private lazy var passwordTextField: TextInput = {
+        let textField = TextInput()
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    private lazy var loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Login", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+    private lazy var loginButton: Button = {
+        let button = Button()
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private lazy var forgotPasswordButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Forgot Password?", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+    private lazy var forgotPasswordButton: Button = {
+        let button = Button()
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private lazy var errorLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .red
-        label.numberOfLines = 0
-        label.textAlignment = .center
+    private lazy var errorLabel: Label = {
+        let label = Label()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
-        indicator.color = .systemBlue
+        indicator.color = Colors.primary
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.hidesWhenStopped = true
         return indicator
+    }()
+    
+    private lazy var formStackView: StackView = {
+        let stack = StackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
     
     // MARK: - Properties
@@ -74,10 +76,10 @@ class AuthViewController: UIViewController, AuthViewable {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = Colors.background
         setupUI()
         setupActions()
         setupKeyboardObservers()
-        setupTextFields()
     }
     
     // MARK: - Actions
@@ -87,21 +89,96 @@ class AuthViewController: UIViewController, AuthViewable {
     
     // MARK: - Setup Methods
     private func setupUI() {
-        view.backgroundColor = .white
         title = "Bank Login"
+        
+        // Configure components
+        titleLabel.configure(with: LabelViewModel(
+            text: "Welcome",
+            style: .largeTitle,
+            alignment: .center
+        ))
+        
+        subtitleLabel.configure(with: LabelViewModel(
+            text: "Please sign in to continue",
+            style: .body,
+            color: Colors.onBackground.withAlphaComponent(0.6),
+            alignment: .center
+        ))
+        
+        usernameTextField.configure(with: TextInputViewModel(
+            placeholder: "Email",
+            style: .outlined,
+            leftIcon: UIImage(systemName: "envelope"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validateEmail(text)
+            }
+        ))
+        usernameTextField.keyboardType = .emailAddress
+        usernameTextField.autocapitalizationType = .none
+        usernameTextField.autocorrectionType = .no
+        usernameTextField.returnKeyType = .next
+        
+        passwordTextField.configure(with: TextInputViewModel(
+            placeholder: "Password",
+            style: .outlined,
+            isSecure: true,
+            leftIcon: UIImage(systemName: "lock"),
+            rightIcon: UIImage(systemName: "eye.slash"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validatePassword(text)
+            }
+        ))
+        passwordTextField.returnKeyType = .done
+        passwordTextField.autocapitalizationType = .none
+        passwordTextField.autocorrectionType = .no
+        
+        loginButton.configure(with: ButtonViewModel(
+            title: "Login",
+            style: .primary,
+            action: { [weak self] in
+                self?.loginButtonTapped()
+            }
+        ))
+        
+        forgotPasswordButton.configure(with: ButtonViewModel(
+            title: "Forgot Password?",
+            style: .text,
+            action: { [weak self] in
+                self?.presenter?.forgotPasswordTapped()
+            }
+        ))
+        
+        errorLabel.configure(with: LabelViewModel(
+            text: "",
+            style: .error,
+            alignment: .center
+        ))
+        errorLabel.alpha = 0
+        
+        // Configure stack view
+        formStackView.configure(with: StackViewConfig(
+            axis: .vertical,
+            spacing: Spacing.large
+        ))
+        
+        // Add arranged subviews
+        formStackView.addArrangedSubviews([
+            titleLabel,
+            subtitleLabel,
+            usernameTextField,
+            passwordTextField,
+            loginButton,
+            forgotPasswordButton,
+            errorLabel
+        ])
         
         // Hierarchy
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        
-        contentView.addSubview(usernameTextField)
-        contentView.addSubview(passwordTextField)
-        contentView.addSubview(loginButton)
-        contentView.addSubview(forgotPasswordButton)
-        contentView.addSubview(errorLabel)
+        contentView.addSubview(formStackView)
         view.addSubview(loadingIndicator)
         
-        // Scroll View Constraints
+        // Constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -112,34 +189,16 @@ class AuthViewController: UIViewController, AuthViewable {
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-        ])
-        
-        // Form Constraints
-        NSLayoutConstraint.activate([
-            usernameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
-            usernameTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            usernameTextField.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
-            usernameTextField.heightAnchor.constraint(equalToConstant: 44),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            passwordTextField.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 20),
-            passwordTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            passwordTextField.widthAnchor.constraint(equalTo: usernameTextField.widthAnchor),
-            passwordTextField.heightAnchor.constraint(equalTo: usernameTextField.heightAnchor),
+            formStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.xxLarge),
+            formStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.xLarge),
+            formStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.xLarge),
+            formStackView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Spacing.xxLarge),
             
-            loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
-            loginButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            loginButton.widthAnchor.constraint(equalTo: usernameTextField.widthAnchor),
+            usernameTextField.heightAnchor.constraint(equalToConstant: 50),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 50),
             loginButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            forgotPasswordButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 15),
-            forgotPasswordButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            
-            errorLabel.topAnchor.constraint(equalTo: forgotPasswordButton.bottomAnchor, constant: 20),
-            errorLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            errorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            errorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            errorLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -147,11 +206,11 @@ class AuthViewController: UIViewController, AuthViewable {
     }
     
     private func setupActions() {
-        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
-        forgotPasswordButton.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
-   
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
+        
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
     }
     
     // MARK: - Keyboard Handling
@@ -184,29 +243,52 @@ class AuthViewController: UIViewController, AuthViewable {
         scrollView.verticalScrollIndicatorInsets = .zero
     }
     
+    // MARK: - Validation Updates
     func updateEmailFieldValidation(isValid: Bool) {
-        usernameTextField.layer.borderColor = isValid ? UIColor.systemGray4.cgColor : UIColor.red.cgColor
+        usernameTextField.configure(with: TextInputViewModel(
+            placeholder: "Email",
+            style: isValid ? .outlined : .error,
+            leftIcon: UIImage(systemName: "envelope"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validateEmail(text)
+            }
+        ))
     }
         
     func updatePasswordFieldValidation(isValid: Bool) {
-        passwordTextField.layer.borderColor = isValid ? UIColor.systemGray4.cgColor : UIColor.red.cgColor
+        passwordTextField.configure(with: TextInputViewModel(
+            placeholder: "Password",
+            style: isValid ? .outlined : .error,
+            isSecure: true,
+            leftIcon: UIImage(systemName: "lock"),
+            rightIcon: UIImage(systemName: "eye.slash"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validatePassword(text)
+            }
+        ))
     }
     
-    // MARK: - Remaining Methods (unchanged)
-    @objc private func loginButtonTapped() {
-        guard let username = usernameTextField.text,
-              let password = passwordTextField.text else { return }
-        presenter?.loginButtonTapped(username: username, password: password)
-    }
-    
+    // MARK: - Helper Methods
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
     
+    @objc private func loginButtonTapped() {
+        presenter?.loginButtonTapped(
+            username: usernameTextField.text ?? "",
+            password: passwordTextField.text ?? ""
+        )
+    }
+    
+    // MARK: - AuthViewable Protocol Implementation
     func displayErrorMessage(_ message: String) {
-        errorLabel.text = message
-        errorLabel.alpha = 0
+        errorLabel.configure(with: LabelViewModel(
+            text: message,
+            style: .error,
+            alignment: .center
+        ))
         
+        errorLabel.alpha = 0
         UIView.animate(withDuration: 0.3) {
             self.errorLabel.alpha = 1
         }
@@ -226,22 +308,14 @@ class AuthViewController: UIViewController, AuthViewable {
     }
 }
 
-extension AuthViewController {
-    private func setupTextFields() {
-        usernameTextField.addTarget(self, action: #selector(emailTextFieldChanged), for: .editingChanged)
-        passwordTextField.addTarget(self, action: #selector(passwordTextFieldChanged), for: .editingChanged)
-        
-        usernameTextField.layer.cornerRadius = 8
-        passwordTextField.layer.cornerRadius = 8
-        usernameTextField.layer.borderWidth = 1
-        passwordTextField.layer.borderWidth = 1
-    }
-    
-    @objc private func emailTextFieldChanged() {
-        presenter?.validateEmail(usernameTextField.text)
-    }
-    
-    @objc private func passwordTextFieldChanged() {
-        presenter?.validatePassword(passwordTextField.text)
+extension AuthViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == usernameTextField {
+            passwordTextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+            loginButtonTapped()
+        }
+        return true
     }
 }
