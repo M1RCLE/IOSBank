@@ -20,7 +20,6 @@ class ProductView: UIView, ConfigurableView {
     typealias ViewModel = EnhancedProductViewModel
     
     private let titleLabel = Label()
-    private let categoryLabel = Label()
     private let descriptionLabel = Label()
     private let productImageView = UIImageView()
     private let loadingIndicator = UIActivityIndicatorView(style: .medium)
@@ -59,7 +58,7 @@ class ProductView: UIView, ConfigurableView {
         
         productImageView.addSubview(loadingIndicator)
         
-        textStack.addArrangedSubviews([titleLabel, categoryLabel, descriptionLabel])
+        textStack.addArrangedSubviews([titleLabel, descriptionLabel])
         contentStack.addArrangedSubviews([productImageView, textStack, detailsArrow])
         
         NSLayoutConstraint.activate([
@@ -98,16 +97,9 @@ class ProductView: UIView, ConfigurableView {
     }
     
     func configure(with viewModel: EnhancedProductViewModel) {
-        // Configure labels using LabelViewModel
         titleLabel.configure(with: LabelViewModel(
             text: viewModel.title,
             style: .headline
-        ))
-        
-        categoryLabel.configure(with: LabelViewModel(
-            text: viewModel.category.uppercased(),
-            style: .caption,
-            color: Colors.primary
         ))
         
         descriptionLabel.configure(with: LabelViewModel(
@@ -116,11 +108,9 @@ class ProductView: UIView, ConfigurableView {
             color: Colors.onBackground.withAlphaComponent(0.7)
         ))
         
-        // Reset image and show loading indicator
         productImageView.image = nil
         loadingIndicator.startAnimating()
         
-        // Load image if URL is available
         if let imageUrl = viewModel.imageUrl {
             URLSession.shared.dataTask(with: imageUrl) { [weak self] data, response, error in
                 DispatchQueue.main.async {
@@ -129,7 +119,6 @@ class ProductView: UIView, ConfigurableView {
                     if let data = data, let image = UIImage(data: data) {
                         self?.productImageView.image = image
                     } else {
-                        // Show placeholder if image loading fails
                         self?.productImageView.image = UIImage(systemName: "photo")
                         self?.productImageView.tintColor = Colors.onBackground.withAlphaComponent(0.3)
                     }
