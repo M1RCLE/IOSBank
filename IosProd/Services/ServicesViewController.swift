@@ -5,7 +5,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
     
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
-        indicator.color = .systemBlue
+        indicator.color = Colors.primary
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.hidesWhenStopped = true
         return indicator
@@ -13,6 +13,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
     
     private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
+        refreshControl.tintColor = Colors.primary
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         return refreshControl
     }()
@@ -22,37 +23,60 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
         
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.spacing = 16
+        // Use StackView from design system
+        let stackView = StackView()
+        stackView.configure(with: StackViewConfig(
+            axis: .vertical,
+            spacing: Spacing.medium,
+            alignment: .center
+        ))
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
+        // Image
         let imageView = UIImageView(image: UIImage(systemName: "doc.text.magnifyingglass"))
         imageView.contentMode = .scaleAspectFit
-        imageView.tintColor = .systemGray
+        imageView.tintColor = Colors.onBackground.withAlphaComponent(0.5)
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.heightAnchor.constraint(equalToConstant: 100),
+            imageView.widthAnchor.constraint(equalToConstant: 100)
+        ])
         
-        let label = UILabel()
-        label.text = "No products found"
-        label.textColor = .systemGray
-        label.font = UIFont.systemFont(ofSize: 16)
+        // Labels
+        let titleLabel = Label()
+        titleLabel.configure(with: LabelViewModel(
+            text: "No products found",
+            style: .headline,
+            alignment: .center
+        ))
         
-        let button = UIButton(type: .system)
-        button.setTitle("Refresh", for: .normal)
-        button.addTarget(self, action: #selector(refreshData), for: .touchUpInside)
+        let subtitleLabel = Label()
+        subtitleLabel.configure(with: LabelViewModel(
+            text: "Try refreshing or check back later",
+            style: .body,
+            color: Colors.onBackground.withAlphaComponent(0.7),
+            alignment: .center
+        ))
         
-        stackView.addArrangedSubview(imageView)
-        stackView.addArrangedSubview(label)
-        stackView.addArrangedSubview(button)
+        // Button
+        let refreshButton = Button()
+        refreshButton.configure(with: ButtonViewModel(
+            title: "Refresh",
+            style: .primary,
+            action: { [weak self] in
+                self?.refreshData()
+            }
+        ))
+        
+        // Add all components to stack
+        stackView.addArrangedSubviews([imageView, titleLabel, subtitleLabel, refreshButton])
         view.addSubview(stackView)
         
         NSLayoutConstraint.activate([
-            imageView.heightAnchor.constraint(equalToConstant: 100),
-            imageView.widthAnchor.constraint(equalToConstant: 100),
-            
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: Spacing.large),
+            stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -Spacing.large)
         ])
         
         return view
@@ -74,11 +98,12 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = Colors.background
         title = "Banking Products"
         
         let tableView = tableManager.getTableView()
         tableView.refreshControl = refreshControl
+        tableView.backgroundColor = Colors.background
         
         view.addSubview(tableView)
         view.addSubview(loadingIndicator)
@@ -101,7 +126,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
     }
     
     private func setupNavigationBar() {
-        navigationItem.hidesBackButton = true // Hide back button since this is post-login
+        navigationItem.hidesBackButton = true
         
         let settingsButton = UIBarButtonItem(
             image: UIImage(systemName: "gear"),
@@ -109,6 +134,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
             target: self,
             action: #selector(settingsButtonTapped)
         )
+        settingsButton.tintColor = Colors.primary
         navigationItem.rightBarButtonItem = settingsButton
     }
     
@@ -142,6 +168,7 @@ class ServicesViewController: UIViewController, ServicesViewable, TableManagerDe
     }
     
     func showError(_ message: String) {
+        // Use alert controller temporarily, but could be enhanced with a custom design system alert
         DispatchQueue.main.async { [weak self] in
             let alert = UIAlertController(
                 title: "Error",
