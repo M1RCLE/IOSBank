@@ -1,164 +1,219 @@
 import UIKit
 
 class AuthViewController: UIViewController, AuthViewable {
-    private lazy var usernameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Email"
-        textField.borderStyle = .roundedRect
-        textField.autocorrectionType = .no
-        textField.autocapitalizationType = .none
+    // MARK: - UI Components
+    private lazy var scrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var titleLabel: Label = {
+        let label = Label()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var subtitleLabel: Label = {
+        let label = Label()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var usernameTextField: TextInput = {
+        let textField = TextInput()
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    private lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Password"
-        textField.borderStyle = .roundedRect
-        textField.isSecureTextEntry = true
+    private lazy var passwordTextField: TextInput = {
+        let textField = TextInput()
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    private lazy var loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Login", for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+    private lazy var loginButton: Button = {
+        let button = Button()
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private lazy var forgotPasswordButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Forgot Password?", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+    private lazy var forgotPasswordButton: Button = {
+        let button = Button()
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private lazy var errorLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .red
-        label.numberOfLines = 0
-        label.textAlignment = .center
+    private lazy var errorLabel: Label = {
+        let label = Label()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
-        indicator.color = .systemBlue
+        indicator.color = Colors.primary
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.hidesWhenStopped = true
         return indicator
     }()
     
+    private lazy var formStackView: StackView = {
+        let stack = StackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    // MARK: - Properties
     var presenter: AuthPresentable?
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = Colors.background
         setupUI()
         setupActions()
         setupKeyboardObservers()
-        setupTextFields()
     }
     
+    // MARK: - Actions
     @objc private func forgotPasswordTapped() {
         presenter?.forgotPasswordTapped()
     }
     
+    // MARK: - Setup Methods
     private func setupUI() {
-        view.backgroundColor = .white
-        title = "Bank Login"
-        
-        view.addSubview(usernameTextField)
-        view.addSubview(passwordTextField)
-        view.addSubview(loginButton)
-        view.addSubview(forgotPasswordButton)
-        view.addSubview(errorLabel)
-        view.addSubview(loadingIndicator)
-        
-        NSLayoutConstraint.activate([
-            usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -100),
-            usernameTextField.widthAnchor.constraint(equalToConstant: 300),
-            usernameTextField.heightAnchor.constraint(equalToConstant: 44),
+            title = "Bank Login"
+            view.backgroundColor = Colors.background
             
-            passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            passwordTextField.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 20),
-            passwordTextField.widthAnchor.constraint(equalToConstant: 300),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 44),
+            titleLabel.configure(with: LabelViewModel(
+                text: "Welcome",
+                style: .largeTitle,
+                alignment: .center
+            ))
             
-            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
-            loginButton.widthAnchor.constraint(equalToConstant: 300),
-            loginButton.heightAnchor.constraint(equalToConstant: 50),
+            subtitleLabel.configure(with: LabelViewModel(
+                text: "Please sign in to continue",
+                style: .body,
+                color: Colors.onBackground.withAlphaComponent(0.6),
+                alignment: .center
+            ))
             
-            forgotPasswordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            forgotPasswordButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 15),
+            usernameTextField.configure(with: TextInputViewModel(
+                placeholder: "Email",
+                style: .outlined,
+                leftIcon: UIImage(systemName: "envelope"),
+                onTextChange: { [weak self] text in
+                    self?.presenter?.validateEmail(text)
+                }
+            ))
+            usernameTextField.keyboardType = .emailAddress
+            usernameTextField.autocapitalizationType = .none
+            usernameTextField.autocorrectionType = .no
+            usernameTextField.returnKeyType = .next
             
-            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            errorLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            passwordTextField.configure(with: TextInputViewModel(
+                placeholder: "Password",
+                style: .outlined,
+                isSecure: true,
+                leftIcon: UIImage(systemName: "lock"),
+                rightIcon: UIImage(systemName: "eye.slash"),
+                onTextChange: { [weak self] text in
+                    self?.presenter?.validatePassword(text)
+                }
+            ))
+            passwordTextField.returnKeyType = .done
+            passwordTextField.autocapitalizationType = .none
+            passwordTextField.autocorrectionType = .no
             
-            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
+            loginButton.configure(with: ButtonViewModel(
+                title: "Login",
+                style: .primary,
+                action: { [weak self] in
+                    self?.loginButtonTapped()
+                }
+            ))
+            
+            forgotPasswordButton.configure(with: ButtonViewModel(
+                title: "Forgot Password?",
+                style: .text,
+                action: { [weak self] in
+                    self?.presenter?.forgotPasswordTapped()
+                }
+            ))
+            
+            errorLabel.configure(with: LabelViewModel(
+                text: "",
+                style: .error,
+                alignment: .center
+            ))
+            errorLabel.alpha = 0
+            
+            formStackView.configure(with: StackViewConfig(
+                axis: .vertical,
+                spacing: Spacing.large
+            ))
+            
+            formStackView.addArrangedSubviews([
+                titleLabel,
+                subtitleLabel,
+                usernameTextField,
+                passwordTextField,
+                loginButton,
+                forgotPasswordButton,
+                errorLabel
+            ])
+            
+            view.addSubview(scrollView)
+            scrollView.addSubview(contentView)
+            contentView.addSubview(formStackView)
+            view.addSubview(loadingIndicator)
+            
+            formStackView.setNeedsLayout()
+            formStackView.layoutIfNeeded()
+            
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                
+                contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                contentView.heightAnchor.constraint(greaterThanOrEqualTo: formStackView.heightAnchor, constant: Spacing.xxLarge * 2),
+                
+                formStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Spacing.xxLarge),
+                formStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Spacing.xLarge),
+                formStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Spacing.xLarge),
+                formStackView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Spacing.xxLarge),
+                
+                usernameTextField.heightAnchor.constraint(equalToConstant: 50),
+                passwordTextField.heightAnchor.constraint(equalToConstant: 50),
+                loginButton.heightAnchor.constraint(equalToConstant: 50),
+                
+                loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+        }
     
     private func setupActions() {
-        loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
-        forgotPasswordButton.addTarget(self, action: #selector(forgotPasswordTapped), for: .touchUpInside)
-   
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc private func loginButtonTapped() {
-        guard let username = usernameTextField.text,
-              let password = passwordTextField.text else {
-            return
-        }
         
-        presenter?.loginButtonTapped(username: username, password: password)
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
     }
     
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-    func displayErrorMessage(_ message: String) {
-        errorLabel.text = message
-        errorLabel.alpha = 0
-        
-        UIView.animate(withDuration: 0.3) {
-            self.errorLabel.alpha = 1
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-            UIView.animate(withDuration: 0.3) {
-                self?.errorLabel.alpha = 0
-            }
-        }
-    }
-    
-    func showLoadingState(_ isLoading: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            if isLoading {
-                self?.loadingIndicator.startAnimating()
-                self?.view.isUserInteractionEnabled = false
-            } else {
-                self?.loadingIndicator.stopAnimating()
-                self?.view.isUserInteractionEnabled = true
-            }
-        }
-    }
-}
-
-extension AuthViewController {
+    // MARK: - Keyboard Handling
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
             self,
@@ -177,47 +232,90 @@ extension AuthViewController {
     
     @objc private func keyboardWillShow(notification: NSNotification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        let keyboardHeight = keyboardFrame.height
         
-        let loginButtonFrame = loginButton.convert(loginButton.bounds, to: view)
-        if loginButtonFrame.maxY > keyboardFrame.minY {
-            view.frame.origin.y = -keyboardFrame.height / 2
-        }
+        scrollView.contentInset.bottom = keyboardHeight
+        scrollView.verticalScrollIndicatorInsets.bottom = keyboardHeight
     }
     
     @objc private func keyboardWillHide() {
-        view.frame.origin.y = 0
+        scrollView.contentInset = .zero
+        scrollView.verticalScrollIndicatorInsets = .zero
     }
     
-    private func setupTextFields() {
-        usernameTextField.addTarget(self, action: #selector(validateEmail), for: .editingChanged)
-        passwordTextField.addTarget(self, action: #selector(validatePassword), for: .editingChanged)
+    // MARK: - Validation Updates
+    func updateEmailFieldValidation(isValid: Bool) {
+        usernameTextField.configure(with: TextInputViewModel(
+            placeholder: "Email",
+            style: isValid ? .outlined : .error,
+            leftIcon: UIImage(systemName: "envelope"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validateEmail(text)
+            }
+        ))
+    }
         
-        usernameTextField.layer.cornerRadius = 8
-        passwordTextField.layer.cornerRadius = 8
-        usernameTextField.layer.borderWidth = 1
-        passwordTextField.layer.borderWidth = 1
+    func updatePasswordFieldValidation(isValid: Bool) {
+        passwordTextField.configure(with: TextInputViewModel(
+            placeholder: "Password",
+            style: isValid ? .outlined : .error,
+            isSecure: true,
+            leftIcon: UIImage(systemName: "lock"),
+            rightIcon: UIImage(systemName: "eye.slash"),
+            onTextChange: { [weak self] text in
+                self?.presenter?.validatePassword(text)
+            }
+        ))
     }
     
-    @objc private func validateEmail() {
-        let isValid = (usernameTextField.text?.contains("@") ?? false)
-                    && (usernameTextField.text?.contains(".") ?? false)
-        usernameTextField.layer.borderColor = isValid
-            ? UIColor.systemGray4.cgColor
-            : UIColor.red.cgColor
+    // MARK: - Helper Methods
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
-    @objc private func validatePassword() {
-        let isValid = (passwordTextField.text?.count ?? 0) >= 6
-        passwordTextField.layer.borderColor = isValid
-            ? UIColor.systemGray4.cgColor
-            : UIColor.red.cgColor
+    @objc private func loginButtonTapped() {
+        presenter?.loginButtonTapped(
+            username: usernameTextField.text ?? "",
+            password: passwordTextField.text ?? ""
+        )
+    }
+    
+    // MARK: - AuthViewable Protocol Implementation
+    func displayErrorMessage(_ message: String) {
+        errorLabel.configure(with: LabelViewModel(
+            text: message,
+            style: .error,
+            alignment: .center
+        ))
+        
+        errorLabel.alpha = 0
+        UIView.animate(withDuration: 0.3) {
+            self.errorLabel.alpha = 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            UIView.animate(withDuration: 0.3) {
+                self?.errorLabel.alpha = 0
+            }
+        }
+    }
+    
+    func showLoadingState(_ isLoading: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            isLoading ? self?.loadingIndicator.startAnimating() : self?.loadingIndicator.stopAnimating()
+            self?.view.isUserInteractionEnabled = !isLoading
+        }
     }
 }
 
-class ServicesViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        title = "Services"
+extension AuthViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == usernameTextField {
+            passwordTextField.becomeFirstResponder()
+        } else {
+            textField.resignFirstResponder()
+            loginButtonTapped()
+        }
+        return true
     }
 }
