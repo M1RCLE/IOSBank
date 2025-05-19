@@ -20,4 +20,20 @@ public struct BDUIElement: Decodable {
         subviews = try container.decodeIfPresent([BDUIElement].self, forKey: .subviews)
         actions = try container.decodeIfPresent([String: BDUIAction].self, forKey: .actions)
     }
+    
+    public init(
+        type: ElementType,
+        id: String? = nil,
+        styles: ElementStyles? = nil,
+        content: [String: AnyCodable]? = nil,
+        subviews: [BDUIElement]? = nil,
+        actions: [String: BDUIAction]? = nil
+    ) {
+        self.type = type
+        self.id = id
+        self.styles = styles
+        self.content = content
+        self.subviews = subviews
+        self.actions = actions
+    }
 }

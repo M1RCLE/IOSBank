@@ -1,159 +1,129 @@
 import UIKit
 
 class BDUIViewController: UIViewController {
-    private var bdMapper: BDUIMapperProtocol!
-    private var rootView: UIView?
+    private var mapper: BDUIMapperProtocol!
+    private var actionHandler: BDUIActionHandlerProtocol!
+    private var jsonData: Data?
+    private var rootElement: BDUIElement?
     
+    // MARK: - Initialization
+    init(jsonData: Data) {
+        self.jsonData = jsonData
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    convenience init(jsonString: String) {
+        guard let data = jsonString.data(using: .utf8) else {
+            fatalError("Invalid JSON string")
+        }
+        self.init(jsonData: data)
+    }
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        bdMapper = BDUIMapper(actionHandler: BDUIActionHandler())
-        
-        loadUIFromJSON()
+        setupDependencies()
+        setupNotifications()
+        renderUI()
     }
     
-    private func loadUIFromJSON() {
-        let jsonString = """
-        {
-            "type": "contentView",
-            "styles": {
-                "backgroundColor": "#FFFFFF"
-            },
-            "subviews": [
-                {
-                    "type": "stackView",
-                    "id": "mainStack",
-                    "content": {
-                        "axis": "vertical",
-                        "spacing": "medium",
-                        "distribution": "fill",
-                        "alignment": "fill"
-                    },
-                    "styles": {
-                        "padding": {
-                            "top": 16,
-                            "left": 16,
-                            "bottom": 16,
-                            "right": 16
-                        }
-                    },
-                    "subviews": [
-                        {
-                            "type": "label",
-                            "content": {
-                                "text": "Welcome to BDUI Demo",
-                                "style": "title",
-                                "alignment": "center"
-                            }
-                        },
-                        {
-                            "type": "card",
-                            "content": {
-                                "title": "Sample Card",
-                                "subtitle": "This is a card created using BDUI",
-                                "imageName": "sample_image",
-                                "style": "elevated"
-                            },
-                            "actions": {
-                                "tap": {
-                                    "type": "navigate",
-                                    "payload": {
-                                        "route": "details",
-                                        "parameters": {
-                                            "itemId": "12345"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "type": "textInput",
-                            "content": {
-                                "placeholder": "Enter your name",
-                                "style": "outlined",
-                                "leftIconName": "person_icon"
-                            },
-                            "actions": {
-                                "textChange": {
-                                    "type": "custom",
-                                    "payload": {
-                                        "name": "nameChanged"
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "type": "stackView",
-                            "content": {
-                                "axis": "horizontal",
-                                "spacing": "medium",
-                                "distribution": "fillEqually"
-                            },
-                            "subviews": [
-                                {
-                                    "type": "button",
-                                    "content": {
-                                        "title": "Cancel",
-                                        "style": "outlined"
-                                    },
-                                    "actions": {
-                                        "tap": {
-                                            "type": "dismiss",
-                                            "payload": {
-                                                "animated": true
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "type": "button",
-                                    "content": {
-                                        "title": "Submit",
-                                        "style": "primary"
-                                    },
-                                    "actions": {
-                                        "tap": {
-                                            "type": "custom",
-                                            "payload": {
-                                                "name": "submitForm",
-                                                "data": {
-                                                    "formId": "registration"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-        """
+    // MARK: - Setup
+    private func setupDependencies() {
+        actionHandler = BDUIActionHandler(viewController: self)
+        mapper = BDUIMapper(actionHandler: actionHandler)
+    }
+    
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleReloadScreen),
+            name: NSNotification.Name("ReloadScreen"),
+            object: nil
+        )
         
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            print("Failed to convert JSON string to data")
-            return
-        }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleReloadView(_:)),
+            name: NSNotification.Name("ReloadView"),
+            object: nil
+        )
+    }
+    
+    // MARK: - UI Rendering
+    func renderUI() {
+        guard let jsonData = jsonData else { return }
         
         do {
             let decoder = JSONDecoder()
-            let element = try decoder.decode(BDUIElement.self, from: jsonData)
+            rootElement = try decoder.decode(BDUIElement.self, from: jsonData)
             
-            if let view = bdMapper.mapToView(element) {
-                rootView = view
-                view.frame = self.view.bounds
-                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                self.view.addSubview(view)
+            if let rootElement = rootElement, let rootView = mapper.mapToView(rootElement) {
+                view.subviews.forEach { $0.removeFromSuperview() }
+                
+                view.addSubview(rootView)
+                rootView.translatesAutoresizingMaskIntoConstraints = false
+                
+                NSLayoutConstraint.activate([
+                    rootView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                    rootView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                    rootView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+                    rootView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+                ])
             }
         } catch {
-            print("Failed to decode JSON: \(error)")
+            print("Error decoding JSON: \(error)")
+            showErrorView(message: "Failed to load UI: \(error.localizedDescription)")
         }
+    }
+    
+    private func showErrorView(message: String) {
+        let errorLabel = UILabel()
+        errorLabel.text = message
+        errorLabel.textColor = .red
+        errorLabel.numberOfLines = 0
+        errorLabel.textAlignment = .center
+        
+        view.addSubview(errorLabel)
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            errorLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    // MARK: - Notifications
+    @objc private func handleReloadScreen() {
+        renderUI()
+    }
+    
+    @objc private func handleReloadView(_ notification: Notification) {
+        guard let viewId = notification.userInfo?["viewId"] as? String else { return }
+        print("Should reload view with ID: \(viewId)")
+    }
+    
+    // MARK: - Public Methods
+    func updateUI(with jsonData: Data) {
+        self.jsonData = jsonData
+        renderUI()
+    }
+    
+    func updateUI(with jsonString: String) {
+        guard let data = jsonString.data(using: .utf8) else { return }
+        updateUI(with: data)
     }
 }
 
 extension BDUIViewController {
     func loadUIFromAPI(for screenName: String) {
+        // TODO: пока что нигде не используется, но потом можно быдет подставлять host и название стреницы и будет все чики пуки
         let urlString = "https://api.example.com/ui/\(screenName)"
         guard let url = URL(string: urlString) else { return }
         
@@ -165,13 +135,18 @@ extension BDUIViewController {
                 let element = try decoder.decode(BDUIElement.self, from: data)
                 
                 DispatchQueue.main.async {
-                    if let view = self.bdMapper.mapToView(element) {
-                        self.rootView?.removeFromSuperview()
+                    if let view = self.mapper.mapToView(element) {
+                        self.view.subviews.forEach { $0.removeFromSuperview() }
                         
-                        self.rootView = view
-                        view.frame = self.view.bounds
-                        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                         self.view.addSubview(view)
+                        view.translatesAutoresizingMaskIntoConstraints = false
+                        
+                        NSLayoutConstraint.activate([
+                            view.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+                            view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+                            view.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+                            view.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor)
+                        ])
                     }
                 }
             } catch {
