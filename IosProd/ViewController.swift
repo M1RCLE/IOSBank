@@ -6,21 +6,40 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        setupDemoButton()
+        setupButtons()
     }
     
-    private func setupDemoButton() {
-        let button = UIButton(type: .system)
-        button.setTitle("Show BDUI Demo", for: .normal)
-        button.addTarget(self, action: #selector(showBDUIDemo), for: .touchUpInside)
+    private func setupButtons() {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        stackView.alignment = .center
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(button)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        let demoButton = UIButton(type: .system)
+        demoButton.setTitle("Show BDUI Demo", for: .normal)
+        demoButton.addTarget(self, action: #selector(showBDUIDemo), for: .touchUpInside)
+        
+        let examplesButton = UIButton(type: .system)
+        examplesButton.setTitle("Show BDUI Examples", for: .normal)
+        examplesButton.addTarget(self, action: #selector(showBDUIExamples), for: .touchUpInside)
+        
+        stackView.addArrangedSubview(demoButton)
+        stackView.addArrangedSubview(examplesButton)
+        
+        view.addSubview(stackView)
         
         NSLayoutConstraint.activate([
-            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    @objc private func showBDUIExamples() {
+        let examplesVC = BDUIExamplesViewController()
+        let navController = UINavigationController(rootViewController: examplesVC)
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
     }
     
     @objc private func showBDUIDemo() {
