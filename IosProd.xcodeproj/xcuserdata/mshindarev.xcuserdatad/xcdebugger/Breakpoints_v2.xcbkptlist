@@ -206,8 +206,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
+            startingLineNumber = "126"
+            endingLineNumber = "126"
             landmarkName = "loadUIConfiguration()"
             landmarkType = "7">
          </BreakpointContent>
@@ -222,8 +222,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "157"
-            endingLineNumber = "157"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "loadUIConfiguration()"
             landmarkType = "7">
          </BreakpointContent>
@@ -238,8 +238,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "145"
-            endingLineNumber = "145"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
             landmarkName = "loadUIConfiguration()"
             landmarkType = "7">
          </BreakpointContent>
@@ -254,8 +254,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
             landmarkName = "init(endpoint:storageKey:additionalParameters:navigationTitle:username:password:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -290,6 +290,36 @@
             endingLineNumber = "216"
             landmarkName = "openBDUIScreen(jsonString:title:presentationStyle:navigationType:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "ABC2633F-0881-4B0D-810F-807F9FD45107 - 97c469024c0d4c9c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__C.UIViewController.openBDUIScreen(with: IosProd.BDUIScreenConfig) -&gt; ()"
+                  moduleName = "IosProd.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/BDUI/BDUIViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "216"
+                  endingLineNumber = "216">
+               </Location>
+               <Location
+                  uuid = "ABC2633F-0881-4B0D-810F-807F9FD45107 - 4c065e408e7b7605"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__C.UIViewController.openBDUIScreen(jsonString: Swift.String, title: Swift.Optional&lt;Swift.String&gt;, presentationStyle: __C.UIModalPresentationStyle, navigationType: IosProd.BDUINavigationType) -&gt; ()"
+                  moduleName = "IosProd.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/BDUI/BDUIViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "216"
+                  endingLineNumber = "216">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -350,8 +380,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
+            startingLineNumber = "142"
+            endingLineNumber = "142"
             landmarkName = "loadUIConfiguration()"
             landmarkType = "7">
          </BreakpointContent>
@@ -366,8 +396,8 @@
             filePath = "IosProd/BDUI/BDUIUniversalViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "171"
-            endingLineNumber = "171"
+            startingLineNumber = "143"
+            endingLineNumber = "143"
             landmarkName = "loadUIConfiguration()"
             landmarkType = "7">
          </BreakpointContent>

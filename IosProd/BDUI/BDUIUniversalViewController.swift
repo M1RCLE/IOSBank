@@ -5,20 +5,15 @@ final class BDUIUniversalViewController: UIViewController {
     private var actionHandler: BDUIActionHandlerProtocol!
     private var loadingIndicator: UIActivityIndicatorView!
     
-    // Configuration
     private var endpoint: String
     private var storageKey: String?
-    private var additionalParameters: [String: String]?
     private var navigationTitle: String?
     
-    // Auth credentials
     private var username: String?
     private var password: String?
     
-    // For directly loading from a string (testing)
     private var jsonString: String?
     
-    // MARK: - Initialization
     init(
         endpoint: String,
         storageKey: String? = nil,
@@ -29,14 +24,12 @@ final class BDUIUniversalViewController: UIViewController {
     ) {
         self.endpoint = endpoint
         self.storageKey = storageKey
-        self.additionalParameters = additionalParameters
         self.navigationTitle = navigationTitle
         self.username = username
         self.password = password
         super.init(nibName: nil, bundle: nil)
     }
     
-    /// Convenience initializer for loading from a JSON string (for testing purposes)
     convenience init(jsonString: String, navigationTitle: String? = nil) {
         self.init(endpoint: "")
         self.jsonString = jsonString
@@ -48,7 +41,6 @@ final class BDUIUniversalViewController: UIViewController {
         super.init(coder: coder)
     }
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -59,19 +51,17 @@ final class BDUIUniversalViewController: UIViewController {
         setupNotifications()
         
         if let jsonString = jsonString {
-            // If we have a JSON string, load from it directly
+            // тестовая работа с json напрямую (было полезно, пока не добавил работу с storage api)
             if let data = jsonString.data(using: .utf8) {
                 renderUI(with: data)
             } else {
                 showError(message: "Invalid JSON string")
             }
         } else {
-            // Otherwise, load from the endpoint
             loadUIConfiguration()
         }
     }
     
-    // MARK: - Setup
     private func setupDependencies() {
         actionHandler = BDUIActionHandler(viewController: self)
         mapper = BDUIMapper(actionHandler: actionHandler)
@@ -104,33 +94,15 @@ final class BDUIUniversalViewController: UIViewController {
         )
     }
     
-    // MARK: - Data Loading
     private func loadUIConfiguration() {
         loadingIndicator.startAnimating()
         
-        // Construct the URL
         var finalEndpoint = endpoint
         if let key = storageKey {
-            // Handle storage endpoint format
             if finalEndpoint.hasSuffix("/") {
                 finalEndpoint += key
             } else {
                 finalEndpoint += "/\(key)"
-            }
-        }
-        
-        // Add query parameters if any
-        if let parameters = additionalParameters, !parameters.isEmpty {
-            var queryItems = [URLQueryItem]()
-            for (key, value) in parameters {
-                queryItems.append(URLQueryItem(name: key, value: value))
-            }
-            
-            if var urlComponents = URLComponents(string: finalEndpoint) {
-                urlComponents.queryItems = queryItems
-                if let url = urlComponents.url {
-                    finalEndpoint = url.absoluteString
-                }
             }
         }
         
@@ -274,11 +246,6 @@ final class BDUIUniversalViewController: UIViewController {
     func updateEndpoint(_ endpoint: String, storageKey: String? = nil) {
         self.endpoint = endpoint
         self.storageKey = storageKey
-        loadUIConfiguration()
-    }
-    
-    func updateParameters(_ parameters: [String: String]?) {
-        self.additionalParameters = parameters
         loadUIConfiguration()
     }
     
