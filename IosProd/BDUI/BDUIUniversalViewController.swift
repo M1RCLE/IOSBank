@@ -11,6 +11,10 @@ final class BDUIUniversalViewController: UIViewController {
     private var additionalParameters: [String: String]?
     private var navigationTitle: String?
     
+    // Auth credentials
+    private var username: String?
+    private var password: String?
+    
     // For directly loading from a string (testing)
     private var jsonString: String?
     
@@ -19,12 +23,16 @@ final class BDUIUniversalViewController: UIViewController {
         endpoint: String,
         storageKey: String? = nil,
         additionalParameters: [String: String]? = nil,
-        navigationTitle: String? = nil
+        navigationTitle: String? = nil,
+        username: String? = nil,
+        password: String? = nil
     ) {
         self.endpoint = endpoint
         self.storageKey = storageKey
         self.additionalParameters = additionalParameters
         self.navigationTitle = navigationTitle
+        self.username = username
+        self.password = password
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -131,7 +139,18 @@ final class BDUIUniversalViewController: UIViewController {
             return
         }
         
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+        var request = URLRequest(url: url)
+        
+        
+        if let username = username, let password = password {
+            let loginString = "\(username):\(password)"
+            if let loginData = loginString.data(using: .utf8) {
+                let base64LoginString = loginData.base64EncodedString()
+                request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
+            }
+        }
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             guard let self = self else { return }
             
             DispatchQueue.main.async {
@@ -148,7 +167,13 @@ final class BDUIUniversalViewController: UIViewController {
                 }
                 
                 guard (200...299).contains(httpResponse.statusCode) else {
-                    self.showError(message: "Server error: \(httpResponse.statusCode)")
+                    if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
+                        self.showError(message: "Authentication failed. Please check your credentials.")
+                    } else if httpResponse.statusCode == 404 {
+                        self.showError(message: "Resource not found. Check storage key or endpoint.")
+                    } else {
+                        self.showError(message: "Server error: \(httpResponse.statusCode)")
+                    }
                     return
                 }
                 
@@ -162,29 +187,49 @@ final class BDUIUniversalViewController: UIViewController {
         }.resume()
     }
     
-    // MARK: - UI Rendering
     private func renderUI(with data: Data) {
         do {
             let decoder = JSONDecoder()
             let rootElement = try decoder.decode(BDUIElement.self, from: data)
             
             if let rootView = mapper.mapToView(rootElement) {
-                // Remove existing subviews except loading indicator
                 view.subviews.forEach { subview in
                     if subview != loadingIndicator {
                         subview.removeFromSuperview()
                     }
                 }
                 
-                // Add the new view
-                view.addSubview(rootView)
+                let scrollView = UIScrollView()
+                scrollView.translatesAutoresizingMaskIntoConstraints = false
+                view.addSubview(scrollView)
+                
+                NSLayoutConstraint.activate([
+                    scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+                    scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+                    scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+                    scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+                ])
+                
+                let contentView = UIView()
+                contentView.translatesAutoresizingMaskIntoConstraints = false
+                scrollView.addSubview(contentView)
+                
+                NSLayoutConstraint.activate([
+                    contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                    contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                    contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                    contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                    contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+                ])
+                
+                contentView.addSubview(rootView)
                 rootView.translatesAutoresizingMaskIntoConstraints = false
                 
                 NSLayoutConstraint.activate([
-                    rootView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                    rootView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-                    rootView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-                    rootView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+                    rootView.topAnchor.constraint(equalTo: contentView.topAnchor),
+                    rootView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                    rootView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                    rootView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
                 ])
             }
         } catch {
@@ -200,7 +245,6 @@ final class BDUIUniversalViewController: UIViewController {
         errorLabel.textAlignment = .center
         errorLabel.font = .systemFont(ofSize: 16, weight: .medium)
         
-        // Remove all views except loading indicator
         view.subviews.forEach { subview in
             if subview != loadingIndicator {
                 subview.removeFromSuperview()
@@ -218,7 +262,6 @@ final class BDUIUniversalViewController: UIViewController {
         ])
     }
     
-    // MARK: - Notification Handlers
     @objc private func handleReloadScreen() {
         loadUIConfiguration()
     }
@@ -226,10 +269,8 @@ final class BDUIUniversalViewController: UIViewController {
     @objc private func handleReloadView(_ notification: Notification) {
         guard let viewId = notification.userInfo?["viewId"] as? String else { return }
         print("Should reload view with ID: \(viewId)")
-        // Implementation for partial reload would go here
     }
     
-    // MARK: - Public Methods
     func updateEndpoint(_ endpoint: String, storageKey: String? = nil) {
         self.endpoint = endpoint
         self.storageKey = storageKey
@@ -238,6 +279,12 @@ final class BDUIUniversalViewController: UIViewController {
     
     func updateParameters(_ parameters: [String: String]?) {
         self.additionalParameters = parameters
+        loadUIConfiguration()
+    }
+    
+    func updateCredentials(username: String?, password: String?) {
+        self.username = username
+        self.password = password
         loadUIConfiguration()
     }
 } 

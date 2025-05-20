@@ -1,6 +1,5 @@
 import UIKit
 
-/// View controller showcasing different BDUI screen configurations
 final class BDUIExamplesViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -31,15 +30,6 @@ final class BDUIExamplesViewController: UIViewController {
             "Complex Content",
             "Example with complex nested views and scroll",
             .complexContent()
-        ),
-        (
-            "Custom Endpoint",
-            "Example using a custom API endpoint",
-            .custom(
-                endpoint: "https://alfa-itmo.ru/api/custom_screen",
-                parameters: ["theme": "dark"],
-                title: "Custom Screen"
-            )
         )
     ]
     
@@ -62,8 +52,6 @@ final class BDUIExamplesViewController: UIViewController {
         ])
     }
 }
-
-// MARK: - UITableViewDelegate & UITableViewDataSource
 
 extension BDUIExamplesViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {

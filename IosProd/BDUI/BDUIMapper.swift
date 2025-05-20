@@ -79,7 +79,6 @@ public class BDUIMapper: BDUIMapperProtocol {
         }
     }
     
-    // MARK: - View Creation Method
     private func createButton(from element: BDUIElement) -> UIButton {
         let button = Button()
         
@@ -303,7 +302,7 @@ public class BDUIMapper: BDUIMapperProtocol {
         let onTextChange: ((String) -> Void)? = element.actions?["textChange"] != nil ? { [weak self, weak textInput] text in
             guard let self = self, let textInput = textInput,
                   let action = element.actions?["textChange"] else { return }
-            var modifiedAction = action
+            let modifiedAction = action
             var payload = modifiedAction.payload ?? [:]
             payload["text"] = AnyCodable(text)
             self.handleAction(modifiedAction, from: textInput)
@@ -428,7 +427,6 @@ public class BDUIMapper: BDUIMapperProtocol {
         return contentView
     }
     
-    // MARK: - Helper Methods
     private func applyStyles(to view: UIView, from styles: ElementStyles?) {
         guard let styles = styles else { return }
         

@@ -8,7 +8,7 @@ final class BDUIActionHandler: BDUIActionHandlerProtocol {
     }
     
     func navigate(to route: String, parameters: [String: Any]?) {
-        // пока без логики навигации, но при переносе на основные окна они появятся
+        // пока без логики навигации
         // трасировка для проверки: print("Navigating to \(route) with parameters: \(parameters ?? [:])")
     }
     

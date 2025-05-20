@@ -123,7 +123,6 @@ class BDUIViewController: UIViewController {
 
 extension BDUIViewController {
     func loadUIFromAPI(for screenName: String) {
-        // TODO: пока что нигде не используется, но потом можно быдет подставлять host и название стреницы и будет все чики пуки
         let urlString = "https://api.example.com/ui/\(screenName)"
         guard let url = URL(string: urlString) else { return }
         
@@ -157,21 +156,15 @@ extension BDUIViewController {
 }
 
 extension UIViewController {
-    /// Opens a BDUI Universal Screen with the given configuration parameters
-    /// - Parameters:
-    ///   - endpoint: The base API endpoint for fetching the UI configuration
-    ///   - storageKey: Optional storage key for the alfa-itmo.ru server
-    ///   - parameters: Optional additional parameters to include in the request
-    ///   - title: Optional navigation title for the screen
-    ///   - presentationStyle: The modal presentation style (default is .pageSheet)
-    ///   - navigationType: Whether to push or present the screen
     func openBDUIScreen(
         endpoint: String = "https://alfa-itmo.ru/server/v1/storage/",
         storageKey: String? = nil,
         parameters: [String: String]? = nil,
         title: String? = nil,
         presentationStyle: UIModalPresentationStyle = .pageSheet,
-        navigationType: BDUINavigationType = .push
+        navigationType: BDUINavigationType = .push,
+        username: String? = nil,
+        password: String? = nil
     ) {
         let config = BDUIScreenConfig(
             endpoint: endpoint,
@@ -179,20 +172,22 @@ extension UIViewController {
             parameters: parameters,
             navigationTitle: title,
             navigationType: navigationType,
-            presentationStyle: presentationStyle
+            presentationStyle: presentationStyle,
+            username: username,
+            password: password
         )
         
         openBDUIScreen(with: config)
     }
     
-    /// Opens a BDUI Universal Screen with the provided configuration
-    /// - Parameter config: The BDUI screen configuration
     func openBDUIScreen(with config: BDUIScreenConfig) {
         let viewController = BDUIUniversalViewController(
             endpoint: config.endpoint,
             storageKey: config.storageKey,
             additionalParameters: config.parameters,
-            navigationTitle: config.navigationTitle
+            navigationTitle: config.navigationTitle,
+            username: config.username,
+            password: config.password
         )
         
         switch config.navigationType {
@@ -202,7 +197,6 @@ extension UIViewController {
             let navController = UINavigationController(rootViewController: viewController)
             navController.modalPresentationStyle = config.presentationStyle
             
-            // Add a close button if presented
             viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
                 barButtonSystemItem: .close,
                 target: viewController,
@@ -213,12 +207,6 @@ extension UIViewController {
         }
     }
     
-    /// Opens a BDUI Universal Screen using a JSON string
-    /// - Parameters:
-    ///   - jsonString: The JSON string defining the UI
-    ///   - title: Optional navigation title for the screen
-    ///   - presentationStyle: The modal presentation style (default is .pageSheet)
-    ///   - navigationType: Whether to push or present the screen
     func openBDUIScreen(
         jsonString: String,
         title: String? = nil,
