@@ -270,8 +270,8 @@
             filePath = "IosProd/BDUI/BDUIViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
             landmarkName = "openBDUIScreen(with:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -280,46 +280,16 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "ABC2633F-0881-4B0D-810F-807F9FD45107"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "IosProd/BDUI/BDUIViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "216"
-            endingLineNumber = "216"
+            startingLineNumber = "210"
+            endingLineNumber = "210"
             landmarkName = "openBDUIScreen(jsonString:title:presentationStyle:navigationType:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "ABC2633F-0881-4B0D-810F-807F9FD45107 - 97c469024c0d4c9c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.UIViewController.openBDUIScreen(with: IosProd.BDUIScreenConfig) -&gt; ()"
-                  moduleName = "IosProd.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/BDUI/BDUIViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "216"
-                  endingLineNumber = "216">
-               </Location>
-               <Location
-                  uuid = "ABC2633F-0881-4B0D-810F-807F9FD45107 - 4c065e408e7b7605"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.UIViewController.openBDUIScreen(jsonString: Swift.String, title: Swift.Optional&lt;Swift.String&gt;, presentationStyle: __C.UIModalPresentationStyle, navigationType: IosProd.BDUINavigationType) -&gt; ()"
-                  moduleName = "IosProd.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mshindarev/Desktop/study/IOS/IosProd/IosProd/BDUI/BDUIViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "216"
-                  endingLineNumber = "216">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -6,7 +6,6 @@ class BDUIViewController: UIViewController {
     private var jsonData: Data?
     private var rootElement: BDUIElement?
     
-    // MARK: - Initialization
     init(jsonData: Data) {
         self.jsonData = jsonData
         super.init(nibName: nil, bundle: nil)
@@ -23,7 +22,6 @@ class BDUIViewController: UIViewController {
         self.init(jsonData: data)
     }
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,7 +30,6 @@ class BDUIViewController: UIViewController {
         renderUI()
     }
     
-    // MARK: - Setup
     private func setupDependencies() {
         actionHandler = BDUIActionHandler(viewController: self)
         mapper = BDUIMapper(actionHandler: actionHandler)
@@ -54,7 +51,6 @@ class BDUIViewController: UIViewController {
         )
     }
     
-    // MARK: - UI Rendering
     func renderUI() {
         guard let jsonData = jsonData else { return }
         
@@ -99,7 +95,6 @@ class BDUIViewController: UIViewController {
         ])
     }
     
-    // MARK: - Notifications
     @objc private func handleReloadScreen() {
         renderUI()
     }
@@ -109,7 +104,6 @@ class BDUIViewController: UIViewController {
         print("Should reload view with ID: \(viewId)")
     }
     
-    // MARK: - Public Methods
     func updateUI(with jsonData: Data) {
         self.jsonData = jsonData
         renderUI()
@@ -225,7 +219,6 @@ extension UIViewController {
             let navController = UINavigationController(rootViewController: viewController)
             navController.modalPresentationStyle = presentationStyle
             
-            // Add a close button if presented
             viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
                 barButtonSystemItem: .close,
                 target: viewController,
@@ -237,13 +230,11 @@ extension UIViewController {
     }
 }
 
-/// Represents how the BDUI screen should be navigated to
 enum BDUINavigationType {
     case push
     case present
 }
 
-/// Extension for the @objc selector
 private extension UIViewController {
     @objc func dismissVC() {
         dismiss(animated: true)
