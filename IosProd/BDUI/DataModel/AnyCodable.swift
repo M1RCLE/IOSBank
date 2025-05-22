@@ -1,5 +1,9 @@
 import UIKit
 
+
+// indirect enum вместо cast
+
+
 public struct AnyCodable: Codable {
     public let value: Any
     
