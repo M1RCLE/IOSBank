@@ -73,11 +73,11 @@ class SimpleExampleViewController: UIViewController {
         }
         """
         
-        let bdViewController = BDUIViewController(jsonString: jsonString)
-        bdViewController.title = "JSON UI"
-        
-        let navigationController = UINavigationController(rootViewController: bdViewController)
-        present(navigationController, animated: true)
+//        let bdViewController = BDUIViewController(jsonString: jsonString)
+//        bdViewController.title = "JSON UI"
+//        
+//        let navigationController = UINavigationController(rootViewController: bdViewController)
+//        present(navigationController, animated: true)
     }
 }
 

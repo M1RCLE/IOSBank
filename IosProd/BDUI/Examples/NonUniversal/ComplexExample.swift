@@ -279,10 +279,10 @@ class ComplexExampleViewController: UIViewController {
         }
         """
         
-        let bdViewController = BDUIViewController(jsonString: jsonString)
-        bdViewController.title = "Product Details"
-        
-        let navigationController = UINavigationController(rootViewController: bdViewController)
-        present(navigationController, animated: true)
+//        let bdViewController = BDUIViewController(jsonString: jsonString)
+//        bdViewController.title = "Product Details"
+//        
+//        let navigationController = UINavigationController(rootViewController: bdViewController)
+//        present(navigationController, animated: true)
     }
 } 

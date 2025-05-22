@@ -51,7 +51,7 @@ final class BDUIUniversalViewController: UIViewController {
         setupNotifications()
         
         if let jsonString = jsonString {
-            // тестовая работа с json напрямую (было полезно, пока не добавил работу с storage api)
+            // тестовая работа с json напрямую (было полезно, пока не добавил работу со storage api)
             if let data = jsonString.data(using: .utf8) {
                 renderUI(with: data)
             } else {
@@ -255,3 +255,98 @@ final class BDUIUniversalViewController: UIViewController {
         loadUIConfiguration()
     }
 } 
+
+
+extension UIViewController {
+    func openBDUIScreen(
+        endpoint: String = "https://alfa-itmo.ru/server/v1/storage/",
+        storageKey: String? = nil,
+        parameters: [String: String]? = nil,
+        title: String? = nil,
+        presentationStyle: UIModalPresentationStyle = .pageSheet,
+        navigationType: BDUINavigationType = .push,
+        username: String? = nil,
+        password: String? = nil
+    ) {
+        let config = BDUIScreenConfig(
+            endpoint: endpoint,
+            storageKey: storageKey,
+            parameters: parameters,
+            navigationTitle: title,
+            navigationType: navigationType,
+            presentationStyle: presentationStyle,
+            username: username,
+            password: password
+        )
+        
+        openBDUIScreen(with: config)
+    }
+    
+    func openBDUIScreen(with config: BDUIScreenConfig) {
+        let viewController = BDUIUniversalViewController(
+            endpoint: config.endpoint,
+            storageKey: config.storageKey,
+            additionalParameters: config.parameters,
+            navigationTitle: config.navigationTitle,
+            username: config.username,
+            password: config.password
+        )
+        
+        switch config.navigationType {
+        case .push:
+            navigationController?.pushViewController(viewController, animated: true)
+        case .present:
+            let navController = UINavigationController(rootViewController: viewController)
+            navController.modalPresentationStyle = config.presentationStyle
+            
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .close,
+                target: viewController,
+                action: #selector(dismissVC)
+            )
+            
+            present(navController, animated: true)
+        }
+    }
+    
+    func openBDUIScreen(
+        jsonString: String,
+        title: String? = nil,
+        presentationStyle: UIModalPresentationStyle = .pageSheet,
+        navigationType: BDUINavigationType = .push
+    ) {
+        let viewController = BDUIUniversalViewController(
+            jsonString: jsonString,
+            navigationTitle: title
+        )
+        
+        switch navigationType {
+        case .push:
+            navigationController?.pushViewController(viewController, animated: true)
+        case .present:
+            let navController = UINavigationController(rootViewController: viewController)
+            navController.modalPresentationStyle = presentationStyle
+            
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(
+                barButtonSystemItem: .close,
+                target: viewController,
+                action: #selector(dismissVC)
+            )
+            
+            present(navController, animated: true)
+        }
+    }
+}
+
+enum BDUINavigationType {
+    case push
+    case present
+}
+
+private extension UIViewController {
+    @objc func dismissVC() {
+        dismiss(animated: true)
+    }
+}
+
+
