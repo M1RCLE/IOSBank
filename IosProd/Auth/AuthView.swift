@@ -1,7 +1,6 @@
 import UIKit
 
 class AuthViewController: UIViewController, AuthViewable {
-    // MARK: - UI Components
     private lazy var scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.translatesAutoresizingMaskIntoConstraints = false
@@ -70,10 +69,8 @@ class AuthViewController: UIViewController, AuthViewable {
         return stack
     }()
     
-    // MARK: - Properties
     var presenter: AuthPresentable?
     
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = Colors.background
@@ -82,12 +79,10 @@ class AuthViewController: UIViewController, AuthViewable {
         setupKeyboardObservers()
     }
     
-    // MARK: - Actions
     @objc private func forgotPasswordTapped() {
         presenter?.forgotPasswordTapped()
     }
-    
-    // MARK: - Setup Methods
+
     private func setupUI() {
             title = "Bank Login"
             view.backgroundColor = Colors.background
@@ -213,7 +208,6 @@ class AuthViewController: UIViewController, AuthViewable {
         passwordTextField.delegate = self
     }
     
-    // MARK: - Keyboard Handling
     private func setupKeyboardObservers() {
         NotificationCenter.default.addObserver(
             self,
@@ -243,7 +237,6 @@ class AuthViewController: UIViewController, AuthViewable {
         scrollView.verticalScrollIndicatorInsets = .zero
     }
     
-    // MARK: - Validation Updates
     func updateEmailFieldValidation(isValid: Bool) {
         usernameTextField.configure(with: TextInputViewModel(
             placeholder: "Email",
@@ -268,7 +261,6 @@ class AuthViewController: UIViewController, AuthViewable {
         ))
     }
     
-    // MARK: - Helper Methods
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -280,7 +272,6 @@ class AuthViewController: UIViewController, AuthViewable {
         )
     }
     
-    // MARK: - AuthViewable Protocol Implementation
     func displayErrorMessage(_ message: String) {
         errorLabel.configure(with: LabelViewModel(
             text: message,
